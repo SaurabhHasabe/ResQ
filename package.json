@@ -1,0 +1,20 @@
+{
+  "name": "resq",
+  "version": "1.0.0",
+  "description": "A Disaster Alert and Information Software",
+  "homepage": "https://github.com/Saurya1729/ResQ#readme",
+  "bugs": {
+    "url": "https://github.com/Saurya1729/ResQ/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saurya1729/ResQ.git"
+  },
+  "license": "ISC",
+  "author": "Saurabh Hasabe",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
