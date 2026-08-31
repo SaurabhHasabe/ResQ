@@ -117,24 +117,24 @@ The platform is built with a **security-first mindset** (Helmet, custom Mongo sa
 │   └─────┬────┘    └─────┬────┘    └─────┬────┘              │
 │         │               │               │                   │
 │         ▼               ▼               ▼                   │
-│   ┌─────────────────────────────────────────────┐            │
-│   │        Express + EJS Server (app.js)         │            │
-│   │  Sessions • Passport • Helmet • Sanitizer   │            │
-│   └────────────────────┬────────────────────────┘            │
-│                        │                                     │
-│   ┌─────────┬──────────┼──────────┬─────────┐                │
-│   ▼         ▼          ▼          ▼         ▼                │
+│   ┌─────────────────────────────────────────────┐           │
+│   │        Express + EJS Server (app.js)         │          │
+│   │  Sessions • Passport • Helmet • Sanitizer   │           │
+│   └────────────────────┬────────────────────────┘           │
+│                        │                                    │
+│   ┌─────────┬──────────┼──────────┬─────────┐               │
+│   ▼         ▼          ▼          ▼         ▼               │
 │ Incidents  Shelters  Requests  Assignments Users            │
-│   │         │          │          │         │                │
-│   └─────────┴──────────┴──────────┴─────────┘                │
-│                        │                                     │
-│                        ▼                                     │
+│   │         │          │          │         │               │
+│   └─────────┴──────────┴──────────┴─────────┘               │
+│                        │                                    │
+│                        ▼                                    │
 │            ┌───────────────────────┐                        │
 │            │   MongoDB Atlas /     │                        │
-│            │   Local Mongo (2dsphr) │                        │
+│            │   Local Mongo (2dsphr) │                       │
 │            └───────────────────────┘                        │
-│                        │                                     │
-│                        ▼                                     │
+│                        │                                    │
+│                        ▼                                    │
 │            ┌───────────────────────┐                        │
 │            │   Cloudinary (media)  │                        │
 │            └───────────────────────┘                        │
@@ -421,10 +421,10 @@ Distributed under the **ISC License**. See `LICENSE` for more information.
 
 ## 👤 Author
 
-**Saury** — *B.Tech Project*
+**Saurabh Hasabe** 
 
-- GitHub: [@<your-username>](https://github.com/<your-username>)
-- Project Link: [https://github.com/<your-username>/ResQ](https://github.com/<your-username>/ResQ)
+- GitHub: [@SaurabhHasabe](https://github.com/SaurabhHasabe)
+- Project Link: [https://github.com/SaurabhHasabe/ResQ](https://github.com/SaurabhHasabe/ResQ)
 
 ---
 
