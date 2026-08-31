@@ -131,7 +131,7 @@ The platform is built with a **security-first mindset** (Helmet, custom Mongo sa
 │                        ▼                                    │
 │            ┌───────────────────────┐                        │
 │            │   MongoDB Atlas /     │                        │
-│            │   Local Mongo (2dsphr) │                       │
+│            │  Local Mongo (2dsphr) │                        │
 │            └───────────────────────┘                        │
 │                        │                                    │
 │                        ▼                                    │
