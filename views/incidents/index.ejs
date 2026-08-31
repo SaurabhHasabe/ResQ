@@ -1,0 +1,87 @@
+<% layout('layouts/boilerplate') %>
+
+<!-- Pass popups array to window for map.js -->
+<script>
+    window.incidentPopups = <%- JSON.stringify(incidents.map(i => ({
+        coordinates: i.location.coordinates,
+        popupMarkup: `<b>${i.title}</b><br>${i.verifiedSeverity || i.selfReportedSeverity} severity<br><a href="/incidents/${i._id}">View</a>`
+    }))) %>;
+</script>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="mb-3">Verified Incidents</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/incidents/new" class="btn btn-primary">Report Incident</a>
+    </div>
+</div>
+
+<div class="card mb-4 p-3 shadow-sm border-0">
+    <form action="/incidents" method="GET" class="row gx-2 gy-2 align-items-center">
+        <div class="col-2">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                <option value="flood" <%= category === 'flood' ? 'selected' : '' %>>Flood</option>
+                <option value="fire" <%= category === 'fire' ? 'selected' : '' %>>Fire</option>
+                <option value="earthquake" <%= category === 'earthquake' ? 'selected' : '' %>>Earthquake</option>
+                <option value="building collapse" <%= category === 'building collapse' ? 'selected' : '' %>>Building Collapse</option>
+                <option value="other" <%= category === 'other' ? 'selected' : '' %>>Other</option>
+            </select>
+        </div>
+        <div class="col-2">
+            <select name="severity" class="form-select">
+                <option value="">All Severities</option>
+                <option value="high" <%= severity === 'high' ? 'selected' : '' %>>High</option>
+                <option value="medium" <%= severity === 'medium' ? 'selected' : '' %>>Medium</option>
+                <option value="low" <%= severity === 'low' ? 'selected' : '' %>>Low</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <% if (incidents.length === 0) { %>
+            <div class="empty-state"><i data-lucide="map-pin-off" class="icon-lg mx-auto text-muted mb-3 d-block"></i><h4>No incidents found</h4><p>There are no verified incidents matching your filters.</p></div>
+        <% } %>
+        <% for (let incident of incidents) { %>
+            <div class="card mb-3 shadow-sm border-0">
+                <div class="row g-0">
+                    <% if(incident.photos.length) { %>
+                        <div class="col-md-4">
+                            <img src="<%= incident.photos[0].url %>" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="Incident Image">
+                        </div>
+                    <% } %>
+                    <div class="col-md-<%= incident.photos.length ? '8' : '12' %>">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= incident.title %></h5>
+                            <p class="card-text"><%= incident.description.substring(0, 100) %>...</p>
+                            <p class="card-text">
+                                <small class="text-muted"><%= incident.address %></small>
+                            </p>
+                            <span class="badge badge-severity-<%= incident.verifiedSeverity || incident.selfReportedSeverity %> mb-2">
+                                Severity: <%= incident.verifiedSeverity || incident.selfReportedSeverity %>
+                            </span>
+                            <span class="badge bg-secondary mb-2"><%= incident.category %></span>
+                            <br>
+                            <a href="/incidents/<%= incident._id %>" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    <div class="col-lg-5">
+        <div id="map" class="sticky-top" style="top: 20px;"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', 20.5937, 78.9629, 4, true, window.incidentPopups);
+    });
+</script>

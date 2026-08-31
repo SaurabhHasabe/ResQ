@@ -1,0 +1,52 @@
+<% layout('layouts/boilerplate') %>
+
+<!-- Map JS dependency -->
+<script>
+    window.requestPopups = <%- JSON.stringify(requests.filter(r => r.status === 'open').map(r => ({
+        coordinates: r.location.coordinates,
+        popupMarkup: `<b>${r.type.toUpperCase()}</b><br>Urgency: ${r.urgency}<br><a href="/requests/${r._id}">View</a>`
+    }))) %>;
+</script>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="mb-3">Aid Requests</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/requests/new" class="btn btn-primary">Request Aid</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <% if (requests.length === 0) { %>
+            <div class="empty-state"><i data-lucide="inbox" class="icon-lg mx-auto text-muted mb-3 d-block"></i><h4>No requests found</h4><p>No active aid requests have been submitted.</p></div>
+        <% } %>
+        <% for (let r of requests) { %>
+            <div class="card mb-3 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-capitalize"><%= r.type %> Request</h5>
+                    <p class="card-text mb-1"><%= r.description %></p>
+                    <p class="card-text text-muted small mb-2"><%= r.address %></p>
+                    <div class="mb-2">
+                        <span class="badge badge-<%= r.status %>">Status: <%= r.status.toUpperCase() %></span>
+                        <span class="badge badge-severity-<%= r.urgency %> ms-1">Urgency: <%= r.urgency %></span>
+                    </div>
+                    <% if (r.linkedIncident) { %>
+                        <p class="mb-2 small"><a href="/incidents/<%= r.linkedIncident._id %>">Linked Incident: <%= r.linkedIncident.title %></a></p>
+                    <% } %>
+                    <a href="/requests/<%= r._id %>" class="btn btn-sm btn-outline-primary">View Details</a>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    <div class="col-lg-5">
+        <div id="map" class="sticky-top" style="top: 20px;"></div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', 20.5937, 78.9629, 4, true, window.requestPopups);
+    });
+</script>

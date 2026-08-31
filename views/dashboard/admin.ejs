@@ -1,0 +1,88 @@
+<% layout('layouts/boilerplate') %>
+<div class="container my-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+    
+    <div class="row text-center mb-5 gx-3 gy-3">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h5 class="text-muted">Verified Incidents</h5>
+                    <h3><%= verifiedIncidents %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h5 class="text-muted">Open Requests</h5>
+                    <h3><%= openRequests %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h5 class="text-muted">Shelter Occupancy</h5>
+                    <h3><%= totalOccupancy %> / <%= totalCapacity %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h5 class="text-muted">Unassigned Tasks</h5>
+                    <h3><%= unassignedTasks %></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Incident Verification Queue</h4>
+    <% if (pendingIncidents.length === 0) { %>
+        <div class="alert alert-success">No pending incidents to verify!</div>
+    <% } %>
+    
+    <div class="row">
+        <% for(let inc of pendingIncidents) { %>
+            <div class="col-12 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 border-end">
+                                <h5><a href="/incidents/<%= inc._id %>"><%= inc.title %></a></h5>
+                                <p class="mb-1 text-muted small"><%= inc.address %></p>
+                                <span class="badge bg-secondary"><%= inc.category %></span>
+                                <span class="badge badge-severity-<%= inc.selfReportedSeverity %>">Self-Reported: <%= inc.selfReportedSeverity %></span>
+                                <p class="mt-2"><small><strong>Suggested Priority Score:</strong> <%= inc.suggestedScore %></small></p>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center">
+                                <form action="/admin/incidents/<%= inc._id %>/verify" method="POST" class="w-100 row gy-2gx-2 align-items-center">
+                                    <div class="col-auto">
+                                        <select name="status" class="form-select form-select-sm" required>
+                                            <option value="verified">Verify</option>
+                                            <option value="rejected">Reject</option>
+                                            <option value="duplicate">Mark Duplicate</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-auto">
+                                        <select name="verifiedSeverity" class="form-select form-select-sm">
+                                            <option value="high" <%= inc.selfReportedSeverity==='high'?'selected':'' %>>High</option>
+                                            <option value="medium" <%= inc.selfReportedSeverity==='medium'?'selected':'' %>>Medium</option>
+                                            <option value="low" <%= inc.selfReportedSeverity==='low'?'selected':'' %>>Low</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="number" name="priorityScore" class="form-control form-control-sm" placeholder="Score override" value="<%= inc.suggestedScore %>" style="width: 100px;">
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary btn-sm">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>

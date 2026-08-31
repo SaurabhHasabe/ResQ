@@ -1,0 +1,41 @@
+<% layout('layouts/boilerplate') %>
+<div class="container my-4">
+    <h2>Your Assignments</h2>
+    <div class="row mt-3">
+        <% if (assignments.length === 0) { %>
+            <div class="col-12"><div class="empty-state"><i data-lucide="clipboard-list" class="icon-lg mx-auto text-muted mb-3 d-block"></i><h4>No assignments</h4><p>You have no assigned tasks at the moment.</p></div></div>
+        <% } %>
+        <% for(let a of assignments) { %>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= a.targetType.toUpperCase() %>: <%= a.targetId ? (a.targetId.title || a.targetId.type) : 'Deleted target' %></h5>
+                        <p class="card-text mb-1"><strong>Status:</strong> <%= a.status %></p>
+                        <p class="card-text mb-2"><small class="text-muted">Assigned on: <%= new Date(a.createdAt).toLocaleDateString() %></small></p>
+                        
+                        <% if(a.targetId && a.targetType === 'incident') { %>
+                            <a href="/incidents/<%= a.targetId._id %>" class="btn btn-sm btn-outline-primary mb-3">View Target Incident</a>
+                        <% } else if(a.targetId && a.targetType === 'request') { %>
+                            <a href="/requests/<%= a.targetId._id %>" class="btn btn-sm btn-outline-primary mb-3">View Target Request</a>
+                        <% } %>
+
+                        <form action="/assignments/<%= a._id %>?_method=PUT" method="POST">
+                            <div class="mb-2">
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="assigned" <%= a.status === 'assigned' ? 'selected' : '' %>>Assigned</option>
+                                    <option value="en_route" <%= a.status === 'en_route' ? 'selected' : '' %>>En Route</option>
+                                    <option value="in_progress" <%= a.status === 'in_progress' ? 'selected' : '' %>>In Progress</option>
+                                    <option value="resolved" <%= a.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <textarea name="fieldNotes" class="form-control form-control-sm" placeholder="Field Notes..."><%= a.fieldNotes %></textarea>
+                            </div>
+                            <button class="btn btn-sm btn-primary w-100">Update Assignment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>

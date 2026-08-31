@@ -1,0 +1,61 @@
+<% layout('layouts/boilerplate') %>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Report an Incident</h2>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form action="/incidents" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label" for="title">Title</label>
+                        <input class="form-control" type="text" id="title" name="incident[title]" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="category">Category</label>
+                        <select class="form-select" id="category" name="incident[category]" required>
+                            <option value="flood">Flood</option>
+                            <option value="fire">Fire</option>
+                            <option value="earthquake">Earthquake</option>
+                            <option value="building collapse">Building Collapse</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="severity">Severity (Your estimate)</label>
+                        <select class="form-select" id="severity" name="incident[selfReportedSeverity]" required>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea class="form-control" type="text" id="description" name="incident[description]" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="image">Images (Optional)</label>
+                        <input type="file" name="incident[photos]" id="image" class="form-control" multiple>
+                    </div>
+
+                    <h5 class="mt-4">Location</h5>
+                    <p class="text-muted small">Click on the map to pin the location.</p>
+                    <div id="map" class="mb-3"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="address">Address (Text)</label>
+                        <input class="form-control" type="text" id="address" name="incident[address]" required>
+                    </div>
+                    <input type="hidden" name="incident[latitude]" id="latitude" required>
+                    <input type="hidden" name="incident[longitude]" id="longitude" required>
+
+                    <button class="btn btn-primary mt-3 w-100">Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', 20.5937, 78.9629, 4, false); // interactable
+    });
+</script>

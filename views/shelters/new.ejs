@@ -1,0 +1,53 @@
+<% layout('layouts/boilerplate') %>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Add New Shelter</h2>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form action="/shelters" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Shelter Name</label>
+                        <input class="form-control" type="text" id="name" name="shelter[name]" required>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label" for="totalCapacity">Total Capacity</label>
+                            <input class="form-control" type="number" id="totalCapacity" name="shelter[totalCapacity]" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="currentOccupancy">Current Occupancy</label>
+                            <input class="form-control" type="number" id="currentOccupancy" name="shelter[currentOccupancy]" min="0" value="0" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="status">Status</label>
+                            <select class="form-select" id="status" name="shelter[status]" required>
+                                <option value="open">Open</option>
+                                <option value="full">Full</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4">Location</h5>
+                    <div id="map" class="mb-3"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="address">Address string</label>
+                        <input class="form-control" type="text" id="address" name="shelter[address]" required>
+                    </div>
+                    <input type="hidden" name="shelter[latitude]" id="latitude" required>
+                    <input type="hidden" name="shelter[longitude]" id="longitude" required>
+
+                    <button class="btn btn-primary mt-3 w-100">Add Shelter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', 20.5937, 78.9629, 4, false);
+    });
+</script>

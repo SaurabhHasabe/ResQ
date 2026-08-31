@@ -1,0 +1,84 @@
+<% layout('layouts/boilerplate') %>
+
+<!-- Map JS dependency -->
+<script>
+    window.incidentLng = <%= incident.location.coordinates[0] %>;
+    window.incidentLat = <%= incident.location.coordinates[1] %>;
+</script>
+
+<div class="row">
+    <div class="col-md-7 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <% if(incident.photos && incident.photos.length > 0) { %>
+                <div id="incidentCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <% incident.photos.forEach((img, i) => { %>
+                        <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+                            <img src="<%= img.url %>" class="d-block w-100" alt="" style="object-fit: cover; height: 300px;">
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+
+            <div class="card-body">
+                <h3 class="card-title"><%= incident.title %></h3>
+                <p class="card-text text-muted mb-3"><%= incident.address %></p>
+
+                <div class="mb-3">
+                    <span class="badge badge-<%= incident.status %>">Status: <%= incident.status.toUpperCase() %></span>
+                    <span class="badge bg-secondary"><%= incident.category.toUpperCase() %></span>
+                    <% if (incident.status === 'verified') { %>
+                        <span class="badge badge-severity-<%= incident.verifiedSeverity %>">Severity: <%= incident.verifiedSeverity %></span>
+                    <% } else { %>
+                        <span class="badge badge-severity-<%= incident.selfReportedSeverity %>">Self-Reported: <%= incident.selfReportedSeverity %></span>
+                    <% } %>
+                </div>
+
+                <p class="card-text"><%= incident.description %></p>
+
+                <% if (incident.reportedBy) { %>
+                    <p class="text-muted mt-3 mb-0"><small>Reported by: <%= incident.reportedBy.username %></small></p>
+                <% } %>
+            </div>
+
+            <% if(currentUser && (incident.reportedBy && incident.reportedBy.equals(currentUser._id) || currentUser.role === 'admin')) { %>
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                <a class="btn btn-sm btn-outline-info" href="/incidents/<%= incident._id %>/edit">Edit</a>
+                <form class="d-inline" action="/incidents/<%= incident._id %>?_method=DELETE" method="POST">
+                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div id="map" class="mb-4"></div>
+        <% if(currentUser && currentUser.role === 'admin') { %>
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Assign Volunteer</h5>
+                    <form action="/admin/assign" method="POST">
+                        <input type="hidden" name="targetType" value="incident">
+                        <input type="hidden" name="targetId" value="<%= incident._id %>">
+                        <div class="mb-2">
+                            <label class="form-label" for="volunteerId">Volunteer ID</label>
+                            <select class="form-select form-select-sm" name="volunteerId" id="volunteerId" required><option value="">-- Select Volunteer --</option><% for(let v of volunteers) { %> <option value="<%= v._id %>"><%= v.username %></option> <% } %></select>
+                            
+                        </div>
+                        <button class="btn btn-sm btn-primary">Assign Task</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', window.incidentLat, window.incidentLng, 14, true, [{
+            coordinates: [window.incidentLng, window.incidentLat],
+            popupMarkup: '<b>Incident Location</b>'
+        }]);
+    });
+</script>

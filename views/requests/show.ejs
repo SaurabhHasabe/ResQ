@@ -1,0 +1,72 @@
+<% layout('layouts/boilerplate') %>
+
+<!-- Map JS dependency -->
+<script>
+    window.reqLng = <%= request.location.coordinates[0] %>;
+    window.reqLat = <%= request.location.coordinates[1] %>;
+</script>
+
+<div class="row">
+    <div class="col-md-7 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h3 class="card-title text-capitalize"><%= request.type %> Request</h3>
+                <p class="card-text text-muted mb-3"><%= request.address %></p>
+
+                <div class="mb-3">
+                    <span class="badge badge-<%= request.status %>">Status: <%= request.status.toUpperCase() %></span>
+                    <span class="badge badge-severity-<%= request.urgency %>">Urgency: <%= request.urgency %></span>
+                </div>
+
+                <p class="card-text"><%= request.description %></p>
+
+                <% if (request.linkedIncident) { %>
+                    <div class="alert alert-light border mt-3">
+                        <small class="mb-0 text-muted">Linked to Incident:</small><br>
+                        <a href="/incidents/<%= request.linkedIncident._id %>"><%= request.linkedIncident.title %></a>
+                    </div>
+                <% } %>
+
+                <% if (request.requestedBy) { %>
+                    <p class="text-muted mt-3 mb-0"><small>Requested by: <%= request.requestedBy.username %></small></p>
+                <% } %>
+            </div>
+
+            <% if(currentUser && (request.requestedBy && request.requestedBy.equals(currentUser._id) || currentUser.role === 'admin')) { %>
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                <form class="d-inline" action="/requests/<%= request._id %>?_method=DELETE" method="POST">
+                    <button class="btn btn-sm btn-outline-danger">Delete Request</button>
+                </form>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div id="map" class="mb-4"></div>
+        <% if(currentUser && currentUser.role === 'admin') { %>
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Assign Volunteer</h5>
+                    <form action="/admin/assign" method="POST">
+                        <input type="hidden" name="targetType" value="request">
+                        <input type="hidden" name="targetId" value="<%= request._id %>">
+                        <div class="mb-2">
+                            <label class="form-label" for="volunteerId">Volunteer ID</label>
+                            <select class="form-select form-select-sm" name="volunteerId" id="volunteerId" required><option value="">-- Select Volunteer --</option><% for(let v of volunteers) { %> <option value="<%= v._id %>"><%= v.username %></option> <% } %></select>
+                        </div>
+                        <button class="btn btn-sm btn-primary">Assign Task</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', window.reqLat, window.reqLng, 14, true, [{
+            coordinates: [window.reqLng, window.reqLat],
+            popupMarkup: '<b>Request Location</b>'
+        }]);
+    });
+</script>

@@ -1,0 +1,65 @@
+<% layout('layouts/boilerplate') %>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Request Aid</h2>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form action="/requests" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label" for="type">Type of Aid</label>
+                        <select class="form-select" id="type" name="request[type]" required>
+                            <option value="rescue">Rescue</option>
+                            <option value="medical">Medical</option>
+                            <option value="food">Food</option>
+                            <option value="water">Water</option>
+                            <option value="shelter">Shelter</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="urgency">Urgency</label>
+                        <select class="form-select" id="urgency" name="request[urgency]" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Situation Description</label>
+                        <textarea class="form-control" type="text" id="description" name="request[description]" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="linkedIncident">Link to Verified Incident (Optional)</label>
+                        <select class="form-select" id="linkedIncident" name="request[linkedIncident]">
+                            <option value="">-- None --</option>
+                            <% for (let inc of incidents) { %>
+                                <option value="<%= inc._id %>" <%= preSelectedId === inc._id.toString() ? 'selected' : '' %>><%= inc.title %></option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <h5 class="mt-4">Location</h5>
+                    <div id="map" class="mb-3"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="address">Address (Text)</label>
+                        <input class="form-control" type="text" id="address" name="request[address]" required>
+                    </div>
+                    <input type="hidden" name="request[latitude]" id="latitude" required>
+                    <input type="hidden" name="request[longitude]" id="longitude" required>
+
+                    <button class="btn btn-primary mt-3 w-100">Submit Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        initializeMap('map', 20.5937, 78.9629, 4, false);
+    });
+</script>

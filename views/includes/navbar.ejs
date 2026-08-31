@@ -1,0 +1,50 @@
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2 fs-2" href="/">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T560-480q0-33-23.5-56.5T480-560q-33 0-56.5 23.5T400-480q0 33 23.5 56.5T480-400ZM661-80q18-56 27-100t14-70q-43 42-100 66t-122 24q-136 0-238.5-18.5T80-214v-85q56 18 100 27t70 14q-42-43-66-100t-24-122q0-137 18.5-239T214-880h85q-18 56-27.5 100T258-710q43-42 100-66t122-24q137 0 239 18.5T880-746v85q-56-18-100-27.5T710-702q42 43 66 100t24 122q0 137-18.5 239T746-80h-85Zm-11-230q70-70 70-170t-70-170q-70-70-170-70t-170 70q-70 70-70 170t70 170q70 70 170 70t170-70Z"/></svg>ResQ
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsupport" aria-controls="navbarsupport" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsupport">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 mt-1">
+          <li class="nav-item">
+            <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/incidents') ? 'active fw-semibold' : '' %>" href="/incidents">Incidents</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/shelters') ? 'active fw-semibold' : '' %>" href="/shelters">Shelters</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/requests') ? 'active fw-semibold' : '' %>" href="/requests">Aid Requests</a>
+          </li>
+          <% if(currentUser && currentUser.role === 'admin') { %>
+          <li class="nav-item">
+            <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/admin') ? 'active fw-semibold' : '' %>" href="/admin/dashboard">Dashboard</a>
+          </li>
+          <% } %>
+          <% if(currentUser && (currentUser.role === 'volunteer' || currentUser.role === 'admin')) { %>
+          <li class="nav-item">
+            <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath.startsWith('/assignments') ? 'active fw-semibold' : '' %>" href="/assignments">Assignments</a>
+          </li>
+          <% } %>
+        </ul>
+        <ul class="navbar-nav ms-auto align-items-center">
+            <% if(!currentUser) { %>
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/login' ? 'active' : '' %>" href="/login">Login</a>
+                </li>
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-outline-light btn-sm" href="/register">Register</a>
+                </li>
+            <% } else { %>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50 <%= typeof currentPath !== 'undefined' && currentPath === '/profile' ? 'active fw-semibold' : '' %>" href="/profile"><i data-lucide="user" class="icon-sm"></i> <%= currentUser.username %></a>
+                </li>
+                <li class="nav-item ms-lg-3">
+                    <a class="btn btn-outline-light btn-sm" href="/logout">Logout</a>
+                </li>
+            <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>
