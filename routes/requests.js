@@ -12,6 +12,6 @@ router.get('/new', isLoggedIn, catchAsync(requests.renderNewForm));
 
 router.route('/:id')
     .get(isValidObjectId, catchAsync(requests.showRequest))
-    .delete(isLoggedIn, isRequestOwner, isValidObjectId, catchAsync(requests.deleteRequest));
+    .delete(isLoggedIn, isValidObjectId, isRequestOwner, catchAsync(requests.deleteRequest));
 
 module.exports = router;

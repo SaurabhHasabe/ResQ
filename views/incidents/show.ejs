@@ -45,7 +45,8 @@
             <% if(currentUser && (incident.reportedBy && incident.reportedBy.equals(currentUser._id) || currentUser.role === 'admin')) { %>
             <div class="card-footer bg-white border-top-0 pt-0 pb-3">
                 <a class="btn btn-sm btn-outline-info" href="/incidents/<%= incident._id %>/edit">Edit</a>
-                <form class="d-inline" action="/incidents/<%= incident._id %>?_method=DELETE" method="POST">
+                <form class="d-inline" action="<%= formAction('/incidents/' + incident._id + '?_method=DELETE') %>" method="POST">
+                    <%- include('../includes/csrf') %>
                     <button class="btn btn-sm btn-outline-danger">Delete</button>
                 </form>
             </div>
@@ -58,7 +59,8 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <h5 class="card-title">Assign Volunteer</h5>
-                    <form action="/admin/assign" method="POST">
+                    <form action="<%= formAction('/admin/assign') %>" method="POST">
+                        <%- include('../includes/csrf') %>
                         <input type="hidden" name="targetType" value="incident">
                         <input type="hidden" name="targetId" value="<%= incident._id %>">
                         <div class="mb-2">

@@ -41,7 +41,10 @@
                     <a class="nav-link text-white-50 <%= typeof currentPath !== 'undefined' && currentPath === '/profile' ? 'active fw-semibold' : '' %>" href="/profile"><i data-lucide="user" class="icon-sm"></i> <%= currentUser.username %></a>
                 </li>
                 <li class="nav-item ms-lg-3">
-                    <a class="btn btn-outline-light btn-sm" href="/logout">Logout</a>
+                    <form action="<%= formAction('/logout') %>" method="POST" class="d-inline">
+                        <%- include('csrf') %>
+                        <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                    </form>
                 </li>
             <% } %>
         </ul>

@@ -7,7 +7,10 @@
             <div class="card-body">
                 <h4><i data-lucide="user" class="icon-sm"></i> <%= currentUser.username %></h4>
                 <p class="text-muted mb-0">Role: <span class="badge bg-secondary text-capitalize"><%= currentUser.role %></span></p>
-                <p class="text-muted">Email: <%= currentUser.email %></p>
+                <p class="text-muted mb-0">Email: <%= currentUser.email %></p>
+                <% if (currentUser.phone) { %>
+                    <p class="text-muted mb-0">Phone: <%= currentUser.phone %></p>
+                <% } %>
             </div>
         </div>
     </div>

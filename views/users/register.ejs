@@ -5,18 +5,22 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title text-center mb-4">Register</h5>
-                    <form action="/register" method="POST" class="needs-validation" novalidate>
+                    <form action="<%= formAction('/register') %>" method="POST" class="needs-validation" novalidate>
+                        <%- include('../includes/csrf') %>
                         <div class="mb-3">
                             <label class="form-label" for="username">Username</label>
-                            <input class="form-control" type="text" id="username" name="username" required autofocus>
+                            <input class="form-control" type="text" id="username" name="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]{3,30}" required autofocus>
+                            <div class="form-text">3–30 letters, numbers, or underscores.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="email">Email</label>
-                            <input class="form-control" type="email" id="email" name="email" required>
+                            <input class="form-control" type="email" id="email" name="email" maxlength="254" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="phone">Phone</label>
-                            <input class="form-control" type="text" id="phone" name="phone">
+                            <input class="form-control" type="tel" id="phone" name="phone" inputmode="numeric" maxlength="13" pattern="^(\+91)?[6-9][0-9]{9}$" placeholder="10-digit Indian mobile">
+                            <div class="invalid-feedback">Enter a valid 10-digit Indian mobile number.</div>
+                            <div class="form-text">Optional. 10 digits, starting with 6–9. +91 is allowed.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="role">Sign up as</label>
@@ -27,7 +31,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password">Password</label>
-                            <input class="form-control" type="password" id="password" name="password" required>
+                            <input class="form-control" type="password" id="password" name="password" minlength="8" maxlength="128" required>
+                            <div class="form-text">At least 8 characters.</div>
                         </div>
                         <button class="btn btn-primary w-100">Register</button>
                     </form>

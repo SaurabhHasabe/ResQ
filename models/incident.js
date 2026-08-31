@@ -7,8 +7,8 @@ const ImageSchema = new Schema({
 });
 
 const IncidentSchema = new Schema({
-    title: { type: String, required: true },
-    description: { type: String, required: true },
+    title: { type: String, required: true, minlength: 3, maxlength: 120, trim: true },
+    description: { type: String, required: true, minlength: 10, maxlength: 5000, trim: true },
     category: {
         type: String,
         enum: ['flood', 'fire', 'earthquake', 'building collapse', 'other'],
@@ -22,10 +22,15 @@ const IncidentSchema = new Schema({
         },
         coordinates: {
             type: [Number],
-            required: true
+            required: true,
+            validate: {
+                validator: (v) => Array.isArray(v) && v.length === 2 &&
+                    v[0] >= -180 && v[0] <= 180 && v[1] >= -90 && v[1] <= 90,
+                message: 'Coordinates must be [longitude, latitude]'
+            }
         }
     },
-    address: { type: String, required: true },
+    address: { type: String, required: true, minlength: 5, maxlength: 300, trim: true },
     selfReportedSeverity: {
         type: String,
         enum: ['low', 'medium', 'high'],
@@ -45,7 +50,7 @@ const IncidentSchema = new Schema({
         enum: ['pending', 'verified', 'rejected', 'duplicate', 'resolved'],
         default: 'pending'
     },
-    photos: [ImageSchema],
+    photos: { type: [ImageSchema], default: [] },
     reportedBy: {
         type: Schema.Types.ObjectId,
         ref: 'User'

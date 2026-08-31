@@ -4,10 +4,11 @@
         <h2 class="mb-4">Edit Incident</h2>
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <form action="/incidents/<%= incident._id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <form action="<%= formAction('/incidents/' + incident._id + '?_method=PUT') %>" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <%- include('../includes/csrf') %>
                     <div class="mb-3">
                         <label class="form-label" for="title">Title</label>
-                        <input class="form-control" type="text" id="title" name="incident[title]" value="<%= incident.title %>" required>
+                        <input class="form-control" type="text" id="title" name="incident[title]" value="<%= incident.title %>" minlength="3" maxlength="120" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="category">Category</label>
@@ -29,7 +30,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="description">Description</label>
-                        <textarea class="form-control" type="text" id="description" name="incident[description]" required><%= incident.description %></textarea>
+                        <textarea class="form-control" id="description" name="incident[description]" minlength="10" maxlength="5000" required><%= incident.description %></textarea>
                     </div>
 
                     <h5 class="mt-4">Location</h5>
@@ -38,7 +39,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="address">Address (Text)</label>
-                        <input class="form-control" type="text" id="address" name="incident[address]" value="<%= incident.address %>" required>
+                        <input class="form-control" type="text" id="address" name="incident[address]" value="<%= incident.address %>" minlength="5" maxlength="300" required>
                     </div>
                     <!-- Prefill with existing coordinates -->
                     <input type="hidden" name="incident[latitude]" id="latitude" value="<%= incident.location.coordinates[1] %>" required>

@@ -12,7 +12,7 @@ router.get('/new', isLoggedIn, isAdmin, shelters.renderNewForm);
 
 router.route('/:id')
     .get(isValidObjectId, catchAsync(shelters.showShelter))
-    .put(isLoggedIn, isAdmin, validateShelter, isValidObjectId, catchAsync(shelters.updateShelter))
+    .put(isLoggedIn, isAdmin, isValidObjectId, validateShelter, catchAsync(shelters.updateShelter))
     .delete(isLoggedIn, isAdmin, isValidObjectId, catchAsync(shelters.deleteShelter));
 
 router.get('/:id/edit', isLoggedIn, isAdmin, isValidObjectId, catchAsync(shelters.renderEditForm));

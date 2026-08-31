@@ -1,5 +1,12 @@
 const Shelter = require('../models/shelter');
 
+function pointFromBody(shelter) {
+    return {
+        type: 'Point',
+        coordinates: [Number(shelter.longitude), Number(shelter.latitude)]
+    };
+}
+
 module.exports.index = async (req, res) => {
     const shelters = await Shelter.find({});
     res.render('shelters/index', { shelters });
@@ -10,13 +17,16 @@ module.exports.renderNewForm = (req, res) => {
 };
 
 module.exports.createShelter = async (req, res) => {
-    const geoData = {
-        type: 'Point',
-        coordinates: [req.body.shelter.longitude, req.body.shelter.latitude]
-    };
-    const shelter = new Shelter(req.body.shelter);
-    shelter.location = geoData;
-    shelter.managedBy = req.user._id;
+    const { name, address, totalCapacity, currentOccupancy, status } = req.body.shelter;
+    const shelter = new Shelter({
+        name,
+        address,
+        totalCapacity,
+        currentOccupancy,
+        status,
+        location: pointFromBody(req.body.shelter),
+        managedBy: req.user._id
+    });
     await shelter.save();
     req.flash('success', 'Successfully added a new shelter!');
     res.redirect(`/shelters/${shelter._id}`);
@@ -42,12 +52,18 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.updateShelter = async (req, res) => {
     const { id } = req.params;
-    const geoData = {
-        type: 'Point',
-        coordinates: [req.body.shelter.longitude, req.body.shelter.latitude]
-    };
-    const shelter = await Shelter.findByIdAndUpdate(id, { ...req.body.shelter });
-    shelter.location = geoData;
+    const shelter = await Shelter.findById(id);
+    if (!shelter) {
+        req.flash('error', 'Cannot find that shelter!');
+        return res.redirect('/shelters');
+    }
+    const { name, address, totalCapacity, currentOccupancy, status } = req.body.shelter;
+    shelter.name = name;
+    shelter.address = address;
+    shelter.totalCapacity = totalCapacity;
+    shelter.currentOccupancy = currentOccupancy;
+    shelter.status = status;
+    shelter.location = pointFromBody(req.body.shelter);
     await shelter.save();
     req.flash('success', 'Successfully updated shelter!');
     res.redirect(`/shelters/${shelter._id}`);
@@ -55,7 +71,11 @@ module.exports.updateShelter = async (req, res) => {
 
 module.exports.deleteShelter = async (req, res) => {
     const { id } = req.params;
-    await Shelter.findByIdAndDelete(id);
+    const shelter = await Shelter.findByIdAndDelete(id);
+    if (!shelter) {
+        req.flash('error', 'Cannot find that shelter!');
+        return res.redirect('/shelters');
+    }
     req.flash('success', 'Successfully deleted shelter');
     res.redirect('/shelters');
 };

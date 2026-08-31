@@ -4,20 +4,21 @@
         <h2 class="mb-4">Edit Shelter</h2>
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <form action="/shelters/<%= shelter._id %>?_method=PUT" method="POST" class="needs-validation" novalidate>
+                <form action="<%= formAction('/shelters/' + shelter._id + '?_method=PUT') %>" method="POST" class="needs-validation" novalidate>
+                    <%- include('../includes/csrf') %>
                     <div class="mb-3">
                         <label class="form-label" for="name">Shelter Name</label>
-                        <input class="form-control" type="text" id="name" name="shelter[name]" value="<%= shelter.name %>" required>
+                        <input class="form-control" type="text" id="name" name="shelter[name]" value="<%= shelter.name %>" minlength="2" maxlength="120" required>
                     </div>
                     
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label class="form-label" for="totalCapacity">Total Capacity</label>
-                            <input class="form-control" type="number" id="totalCapacity" name="shelter[totalCapacity]" min="1" value="<%= shelter.totalCapacity %>" required>
+                            <input class="form-control" type="number" id="totalCapacity" name="shelter[totalCapacity]" min="1" max="100000" step="1" value="<%= shelter.totalCapacity %>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="currentOccupancy">Current Occupancy</label>
-                            <input class="form-control" type="number" id="currentOccupancy" name="shelter[currentOccupancy]" min="0" value="<%= shelter.currentOccupancy %>" required>
+                            <input class="form-control" type="number" id="currentOccupancy" name="shelter[currentOccupancy]" min="0" max="100000" step="1" value="<%= shelter.currentOccupancy %>" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" for="status">Status</label>
@@ -34,7 +35,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="address">Address string</label>
-                        <input class="form-control" type="text" id="address" name="shelter[address]" value="<%= shelter.address %>" required>
+                        <input class="form-control" type="text" id="address" name="shelter[address]" value="<%= shelter.address %>" minlength="5" maxlength="300" required>
                     </div>
                     <input type="hidden" name="shelter[latitude]" id="latitude" value="<%= shelter.location.coordinates[1] %>" required>
                     <input type="hidden" name="shelter[longitude]" id="longitude" value="<%= shelter.location.coordinates[0] %>" required>

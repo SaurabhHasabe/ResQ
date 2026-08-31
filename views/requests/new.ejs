@@ -4,7 +4,8 @@
         <h2 class="mb-4">Request Aid</h2>
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <form action="/requests" method="POST" class="needs-validation" novalidate>
+                <form action="<%= formAction('/requests') %>" method="POST" class="needs-validation" novalidate>
+                    <%- include('../includes/csrf') %>
                     <div class="mb-3">
                         <label class="form-label" for="type">Type of Aid</label>
                         <select class="form-select" id="type" name="request[type]" required>
@@ -28,7 +29,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="description">Situation Description</label>
-                        <textarea class="form-control" type="text" id="description" name="request[description]" required></textarea>
+                        <textarea class="form-control" id="description" name="request[description]" minlength="10" maxlength="5000" required></textarea>
                     </div>
 
                     <div class="mb-3">
@@ -46,7 +47,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="address">Address (Text)</label>
-                        <input class="form-control" type="text" id="address" name="request[address]" required>
+                        <input class="form-control" type="text" id="address" name="request[address]" minlength="5" maxlength="300" required>
                     </div>
                     <input type="hidden" name="request[latitude]" id="latitude" required>
                     <input type="hidden" name="request[longitude]" id="longitude" required>

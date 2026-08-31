@@ -1,18 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
-const { isLoggedIn, isAdmin } = require('../middleware');
+const { isLoggedIn, isAdmin, isValidObjectId, validateVerify, validateAssign } = require('../middleware');
 const Incident = require('../models/incident');
 const Shelter = require('../models/shelter');
 const Request = require('../models/request');
 const Assignment = require('../models/assignment');
 const User = require('../models/user');
 
-// RULE-BASED PRIORITY SCORING
 function calculateScore(incident, allPendingIncidents) {
     let score = 0;
-
-    // Category weight
     const categoryWeights = {
         'building collapse': 50,
         'fire': 40,
@@ -22,13 +19,11 @@ function calculateScore(incident, allPendingIncidents) {
     };
     score += (categoryWeights[incident.category] || 10);
 
-    // Severity weight
-    const severityWeights = { 'high': 30, 'medium': 15, 'low': 5 };
+    const severityWeights = { high: 30, medium: 15, low: 5 };
     score += (severityWeights[incident.selfReportedSeverity] || 5);
 
-    // Density
     let nearbyCount = 0;
-    for (let other of allPendingIncidents) {
+    for (const other of allPendingIncidents) {
         if (other._id.toString() === incident._id.toString()) continue;
         const [lon1, lat1] = incident.location.coordinates;
         const [lon2, lat2] = other.location.coordinates;
@@ -36,19 +31,16 @@ function calculateScore(incident, allPendingIncidents) {
         if (dist < 0.02) nearbyCount++;
     }
     score += (nearbyCount * 5);
-
-    return score;
+    return Math.min(1000, score);
 }
 
 router.get('/dashboard', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
-    let pendingIncidentsDocs = await Incident.find({ status: 'pending' });
-    let pendingIncidents = pendingIncidentsDocs.map(doc => doc.toObject());
-    
-    // Compute suggested scores
+    const pendingIncidentsDocs = await Incident.find({ status: 'pending' });
+    const pendingIncidents = pendingIncidentsDocs.map(doc => doc.toObject());
+
     pendingIncidents.forEach(inc => {
         inc.suggestedScore = calculateScore(inc, pendingIncidents);
     });
-    // Sort pending by suggested score desc
     pendingIncidents.sort((a, b) => b.suggestedScore - a.suggestedScore);
 
     const verifiedIncidents = await Incident.countDocuments({ status: 'verified' });
@@ -62,8 +54,8 @@ router.get('/dashboard', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
         totalOccupancy += s.currentOccupancy;
     });
 
-    const unassignedTasks = openRequests + pendingIncidentsDocs.length; // rough stat
-    const volunteers = await User.find({ role: 'volunteer' });
+    const unassignedTasks = openRequests + pendingIncidentsDocs.length;
+    const volunteers = await User.find({ role: 'volunteer' }).select('username');
 
     res.render('dashboard/admin', {
         pendingIncidents,
@@ -76,17 +68,21 @@ router.get('/dashboard', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
     });
 }));
 
-router.post('/incidents/:id/verify', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
+router.post('/incidents/:id/verify', isLoggedIn, isAdmin, isValidObjectId, validateVerify, catchAsync(async (req, res) => {
     const { status, verifiedSeverity, priorityScore } = req.body;
     const incident = await Incident.findById(req.params.id);
     if (!incident) {
         req.flash('error', 'Incident not found');
         return res.redirect('/admin/dashboard');
     }
+    if (incident.status !== 'pending') {
+        req.flash('error', 'This incident has already been reviewed.');
+        return res.redirect('/admin/dashboard');
+    }
     incident.status = status;
     if (status === 'verified') {
         incident.verifiedSeverity = verifiedSeverity;
-        incident.priorityScore = priorityScore ? Number(priorityScore) : null;
+        incident.priorityScore = priorityScore === '' || priorityScore == null ? null : Number(priorityScore);
         incident.verifiedBy = req.user._id;
         incident.verifiedAt = new Date();
     }
@@ -95,8 +91,34 @@ router.post('/incidents/:id/verify', isLoggedIn, isAdmin, catchAsync(async (req,
     res.redirect('/admin/dashboard');
 }));
 
-router.post('/assign', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
+router.post('/assign', isLoggedIn, isAdmin, validateAssign, catchAsync(async (req, res) => {
     const { volunteerId, targetType, targetId } = req.body;
+    const referer = req.get('Referrer') || req.get('Referer') || '/admin/dashboard';
+
+    const volunteer = await User.findById(volunteerId);
+    if (!volunteer || volunteer.role !== 'volunteer') {
+        req.flash('error', 'Select a valid volunteer.');
+        return res.redirect(referer);
+    }
+
+    const Target = targetType === 'incident' ? Incident : Request;
+    const target = await Target.findById(targetId);
+    if (!target) {
+        req.flash('error', 'Target not found.');
+        return res.redirect(referer);
+    }
+
+    const duplicate = await Assignment.findOne({
+        volunteer: volunteerId,
+        targetType,
+        targetId,
+        status: { $ne: 'resolved' }
+    });
+    if (duplicate) {
+        req.flash('error', 'That volunteer is already assigned to this task.');
+        return res.redirect(referer);
+    }
+
     const assignment = new Assignment({
         volunteer: volunteerId,
         targetType,
@@ -105,12 +127,12 @@ router.post('/assign', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
     });
     await assignment.save();
 
-    if (targetType === 'request') {
-        await Request.findByIdAndUpdate(targetId, { status: 'assigned' });
+    if (targetType === 'request' && target.status === 'open') {
+        target.status = 'assigned';
+        await target.save();
     }
 
     req.flash('success', 'Successfully assigned task to volunteer');
-    const referer = req.get('Referer') || '/admin/dashboard';
     res.redirect(referer);
 }));
 

@@ -2,10 +2,7 @@
 
 <!-- Pass popups array to window for map.js -->
 <script>
-    window.incidentPopups = <%- JSON.stringify(incidents.map(i => ({
-        coordinates: i.location.coordinates,
-        popupMarkup: `<b>${i.title}</b><br>${i.verifiedSeverity || i.selfReportedSeverity} severity<br><a href="/incidents/${i._id}">View</a>`
-    }))) %>;
+    window.incidentPopups = <%- JSON.stringify(popups) %>;
 </script>
 
 <div class="row mb-4">
@@ -51,15 +48,15 @@
         <% for (let incident of incidents) { %>
             <div class="card mb-3 shadow-sm border-0">
                 <div class="row g-0">
-                    <% if(incident.photos.length) { %>
+                    <% if(incident.photos && incident.photos.length) { %>
                         <div class="col-md-4">
                             <img src="<%= incident.photos[0].url %>" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="Incident Image">
                         </div>
                     <% } %>
-                    <div class="col-md-<%= incident.photos.length ? '8' : '12' %>">
+                    <div class="col-md-<%= incident.photos && incident.photos.length ? '8' : '12' %>">
                         <div class="card-body">
                             <h5 class="card-title"><%= incident.title %></h5>
-                            <p class="card-text"><%= incident.description.substring(0, 100) %>...</p>
+                            <p class="card-text"><%= incident.description.length > 100 ? incident.description.substring(0, 100) + '...' : incident.description %></p>
                             <p class="card-text">
                                 <small class="text-muted"><%= incident.address %></small>
                             </p>

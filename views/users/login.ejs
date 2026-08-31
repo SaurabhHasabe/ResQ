@@ -5,14 +5,15 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title text-center mb-4">Login</h5>
-                    <form action="/login" method="POST">
+                    <form action="<%= formAction('/login') %>" method="POST" class="needs-validation" novalidate>
+                        <%- include('../includes/csrf') %>
                         <div class="mb-3">
                             <label class="form-label" for="username">Username</label>
-                            <input class="form-control" type="text" id="username" name="username" required autofocus>
+                            <input class="form-control" type="text" id="username" name="username" maxlength="30" required autofocus>
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="password">Password</label>
-                            <input class="form-control" type="password" id="password" name="password" required>
+                            <input class="form-control" type="password" id="password" name="password" maxlength="128" required>
                         </div>
                         <button class="btn btn-primary w-100">Login</button>
                     </form>

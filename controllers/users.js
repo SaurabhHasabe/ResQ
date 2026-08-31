@@ -9,9 +9,8 @@ module.exports.renderRegister = (req, res) => {
 module.exports.register = async (req, res, next) => {
     try {
         const { email, username, password, phone, role } = req.body;
-        // Don't allow creating admin through this route
         const userRole = role === 'volunteer' ? 'volunteer' : 'citizen';
-        const user = new User({ email, username, phone, role: userRole });
+        const user = new User({ email, username, phone: phone || '', role: userRole });
         const registeredUser = await User.register(user, password);
         req.login(registeredUser, err => {
             if (err) return next(err);
@@ -19,7 +18,10 @@ module.exports.register = async (req, res, next) => {
             res.redirect('/incidents');
         });
     } catch (e) {
-        req.flash('error', e.message);
+        const msg = e.code === 11000
+            ? 'A user with that email already exists.'
+            : (e.message || 'Registration failed.');
+        req.flash('error', msg);
         res.redirect('/register');
     }
 };
@@ -31,6 +33,7 @@ module.exports.renderLogin = (req, res) => {
 module.exports.login = (req, res) => {
     req.flash('success', 'Welcome back!');
     const redirectUrl = res.locals.returnTo || '/incidents';
+    delete req.session.returnTo;
     res.redirect(redirectUrl);
 };
 

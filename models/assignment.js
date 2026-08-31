@@ -30,7 +30,8 @@ const AssignmentSchema = new Schema({
     },
     fieldNotes: {
         type: String,
-        default: ''
+        default: '',
+        maxlength: 2000
     }
 }, { timestamps: true });
 

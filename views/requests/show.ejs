@@ -34,7 +34,8 @@
 
             <% if(currentUser && (request.requestedBy && request.requestedBy.equals(currentUser._id) || currentUser.role === 'admin')) { %>
             <div class="card-footer bg-white border-top-0 pt-0 pb-3">
-                <form class="d-inline" action="/requests/<%= request._id %>?_method=DELETE" method="POST">
+                <form class="d-inline" action="<%= formAction('/requests/' + request._id + '?_method=DELETE') %>" method="POST">
+                    <%- include('../includes/csrf') %>
                     <button class="btn btn-sm btn-outline-danger">Delete Request</button>
                 </form>
             </div>
@@ -47,7 +48,8 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <h5 class="card-title">Assign Volunteer</h5>
-                    <form action="/admin/assign" method="POST">
+                    <form action="<%= formAction('/admin/assign') %>" method="POST">
+                        <%- include('../includes/csrf') %>
                         <input type="hidden" name="targetType" value="request">
                         <input type="hidden" name="targetId" value="<%= request._id %>">
                         <div class="mb-2">

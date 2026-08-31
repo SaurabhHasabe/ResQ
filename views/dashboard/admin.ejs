@@ -56,7 +56,8 @@
                                 <p class="mt-2"><small><strong>Suggested Priority Score:</strong> <%= inc.suggestedScore %></small></p>
                             </div>
                             <div class="col-md-6 d-flex align-items-center">
-                                <form action="/admin/incidents/<%= inc._id %>/verify" method="POST" class="w-100 row gy-2gx-2 align-items-center">
+                                <form action="<%= formAction('/admin/incidents/' + inc._id + '/verify') %>" method="POST" class="w-100 row gy-2 gx-2 align-items-center">
+                                    <%- include('../includes/csrf') %>
                                     <div class="col-auto">
                                         <select name="status" class="form-select form-select-sm" required>
                                             <option value="verified">Verify</option>
@@ -72,7 +73,7 @@
                                         </select>
                                     </div>
                                     <div class="col-auto">
-                                        <input type="number" name="priorityScore" class="form-control form-control-sm" placeholder="Score override" value="<%= inc.suggestedScore %>" style="width: 100px;">
+                                        <input type="number" name="priorityScore" class="form-control form-control-sm" placeholder="Score override" min="0" max="1000" value="<%= inc.suggestedScore %>" style="width: 100px;">
                                     </div>
                                     <div class="col-auto">
                                         <button class="btn btn-primary btn-sm">Submit</button>
