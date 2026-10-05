@@ -19,45 +19,66 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-7">
-        <% if (shelters.length === 0) { %>
-            <div class="empty-state"><i data-lucide="home" class="icon-lg mx-auto text-muted mb-3 d-block"></i><h4>No shelters found</h4><p>There are no shelters registered currently.</p></div>
-        <% } %>
+<!-- Map at the top, full width -->
+<div id="map" class="mb-4" style="height: 400px; border-radius: 8px;"></div>
+
+<!-- Shelters in grid below -->
+<% if (shelters.length === 0) { %>
+    <div class="empty-state">
+        <i data-lucide="home" class="icon-lg mx-auto text-muted mb-3 d-block"></i>
+        <h4>No shelters found</h4>
+        <p>There are no shelters registered currently.</p>
+    </div>
+<% } else { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <% for(let s of shelters) { %>
-            <div class="card mb-3 shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title"><%= s.name %></h5>
-                    <p class="card-text text-muted mb-2"><%= s.address %></p>
-                    <div class="mb-2">
-                        <% if(s.status === 'open') { %>
-                            <span class="badge bg-success">Open</span>
-                        <% } else if(s.status === 'full') { %>
-                            <span class="badge bg-warning text-dark">Full</span>
-                        <% } else { %>
-                            <span class="badge bg-danger">Closed</span>
-                        <% } %>
-                        <span class="badge bg-secondary ms-2">Occupancy: <%= s.currentOccupancy %> / <%= s.totalCapacity %></span>
-                    </div>
-                    <!-- simple progress bar -->
-                    <div class="progress mb-3" style="height: 5px;">
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><%= s.name %></h5>
+                        <p class="card-text text-muted small mb-3">
+                            <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                            <%= s.address %>
+                        </p>
+
+                        <div class="row text-center mb-3 border rounded py-2">
+                            <div class="col-6 border-end">
+                                <h6 class="mb-0"><%= s.currentOccupancy %></h6>
+                                <small class="text-muted">Current</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="mb-0"><%= s.totalCapacity %></h6>
+                                <small class="text-muted">Capacity</small>
+                            </div>
+                        </div>
+
                         <% const pct = Math.min(100, Math.max(0, (s.currentOccupancy / s.totalCapacity) * 100)); %>
-                        <div class="progress-bar <%= pct >= 100 ? 'bg-danger' : 'bg-success' %>" role="progressbar" style="width: <%= pct %>%;"></div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar <%= pct >= 100 ? 'bg-danger' : pct >= 80 ? 'bg-warning' : 'bg-success' %>" role="progressbar" style="width: <%= pct %>%;"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <% if(s.status === 'open') { %>
+                                <span class="badge bg-success">Open</span>
+                            <% } else if(s.status === 'full') { %>
+                                <span class="badge bg-warning text-dark">Full</span>
+                            <% } else { %>
+                                <span class="badge bg-danger">Closed</span>
+                            <% } %>
+                        </div>
+
+                        <div class="mt-auto">
+                            <a class="btn btn-sm btn-outline-primary w-100 mb-2" href="/shelters/<%= s._id %>">View Details</a>
+                            <% if (currentUser && currentUser.role === 'admin') { %>
+                                <a class="btn btn-sm btn-outline-info w-100" href="/shelters/<%= s._id %>/edit">Manage</a>
+                            <% } %>
+                        </div>
                     </div>
-
-                    <a class="btn btn-sm btn-outline-primary" href="/shelters/<%= s._id %>">View Details</a>
-
-                    <% if (currentUser && currentUser.role === 'admin') { %>
-                        <a class="btn btn-sm btn-outline-info ms-1" href="/shelters/<%= s._id %>/edit">Manage</a>
-                    <% } %>
                 </div>
             </div>
         <% } %>
     </div>
-    <div class="col-lg-5">
-        <div id="map" class="sticky-top" style="top: 20px;"></div>
-    </div>
-</div>
+<% } %>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {

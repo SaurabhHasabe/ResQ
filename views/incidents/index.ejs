@@ -16,7 +16,7 @@
 
 <div class="card mb-4 p-3 shadow-sm border-0">
     <form action="/incidents" method="GET" class="row gx-2 gy-2 align-items-center">
-        <div class="col-2">
+        <div class="col-md-3">
             <select name="category" class="form-select">
                 <option value="">All Categories</option>
                 <option value="flood" <%= category === 'flood' ? 'selected' : '' %>>Flood</option>
@@ -26,7 +26,7 @@
                 <option value="other" <%= category === 'other' ? 'selected' : '' %>>Other</option>
             </select>
         </div>
-        <div class="col-2">
+        <div class="col-md-3">
             <select name="severity" class="form-select">
                 <option value="">All Severities</option>
                 <option value="high" <%= severity === 'high' ? 'selected' : '' %>>High</option>
@@ -34,48 +34,52 @@
                 <option value="low" <%= severity === 'low' ? 'selected' : '' %>>Low</option>
             </select>
         </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
         </div>
     </form>
 </div>
 
-<div class="row">
-    <div class="col-lg-7">
-        <% if (incidents.length === 0) { %>
-            <div class="empty-state"><i data-lucide="map-pin-off" class="icon-lg mx-auto text-muted mb-3 d-block"></i><h4>No incidents found</h4><p>There are no verified incidents matching your filters.</p></div>
-        <% } %>
+<!-- Map at the top, full width -->
+<div id="map" class="mb-4" style="height: 400px; border-radius: 8px;"></div>
+
+<!-- Incidents in grid below -->
+<% if (incidents.length === 0) { %>
+    <div class="empty-state">
+        <i data-lucide="map-pin-off" class="icon-lg mx-auto text-muted mb-3 d-block"></i>
+        <h4>No incidents found</h4>
+        <p>There are no verified incidents matching your filters.</p>
+    </div>
+<% } else { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <% for (let incident of incidents) { %>
-            <div class="card mb-3 shadow-sm border-0">
-                <div class="row g-0">
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0">
                     <% if(incident.photos && incident.photos.length) { %>
-                        <div class="col-md-4">
-                            <img src="<%= incident.photos[0].url %>" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="Incident Image">
-                        </div>
+                        <img src="<%= incident.photos[0].url %>" class="card-img-top" style="object-fit: cover; height: 180px;" alt="Incident Image">
                     <% } %>
-                    <div class="col-md-<%= incident.photos && incident.photos.length ? '8' : '12' %>">
-                        <div class="card-body">
-                            <h5 class="card-title"><%= incident.title %></h5>
-                            <p class="card-text"><%= incident.description.length > 100 ? incident.description.substring(0, 100) + '...' : incident.description %></p>
-                            <p class="card-text">
-                                <small class="text-muted"><%= incident.address %></small>
-                            </p>
-                            <span class="badge badge-severity-<%= incident.verifiedSeverity || incident.selfReportedSeverity %> mb-2">
-                                Severity: <%= incident.verifiedSeverity || incident.selfReportedSeverity %>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><%= incident.title %></h5>
+                        <p class="card-text text-muted small mb-2">
+                            <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                            <%= incident.address %>
+                        </p>
+                        <p class="card-text flex-grow-1">
+                            <%= incident.description.length > 120 ? incident.description.substring(0, 120) + '...' : incident.description %>
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge badge-severity-<%= incident.verifiedSeverity || incident.selfReportedSeverity %> me-1">
+                                <%= incident.verifiedSeverity || incident.selfReportedSeverity %>
                             </span>
-                            <span class="badge bg-secondary mb-2"><%= incident.category %></span>
-                            <br>
-                            <a href="/incidents/<%= incident._id %>" class="btn btn-sm btn-outline-primary">View Details</a>
+                            <span class="badge bg-secondary"><%= incident.category %></span>
                         </div>
+                        <a href="/incidents/<%= incident._id %>" class="btn btn-sm btn-outline-primary mt-auto">View Details</a>
                     </div>
                 </div>
             </div>
         <% } %>
     </div>
-    <div class="col-lg-5">
-        <div id="map" class="sticky-top" style="top: 20px;"></div>
-    </div>
-</div>
+<% } %>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
