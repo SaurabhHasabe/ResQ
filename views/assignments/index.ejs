@@ -1,6 +1,8 @@
 <% layout('layouts/boilerplate') %>
 <div class="container my-4">
-    <h2>Your Assignments</h2>
+    <div class="text-center mb-4">
+        <h1 class="mb-3">Your Assignments</h1>
+    </div>
     <div class="row mt-3">
         <% if (assignments.length === 0) { %>
             <div class="col-12"><div class="empty-state"><i data-lucide="clipboard-list" class="icon-lg mx-auto text-muted mb-3 d-block"></i><h4>No assignments</h4><p>You have no assigned tasks at the moment.</p></div></div>

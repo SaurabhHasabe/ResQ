@@ -5,12 +5,15 @@
     window.incidentPopups = <%- JSON.stringify(popups) %>;
 </script>
 
-<div class="row mb-4">
-    <div class="col-md-8">
-        <h1 class="mb-3">Verified Incidents</h1>
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8 text-center text-md-start">
+        <h1 class="mb-0">Verified Incidents</h1>
     </div>
-    <div class="col-md-4 text-end">
-        <a href="/incidents/new" class="btn btn-primary">Report Incident</a>
+    <div class="col-md-4 text-center text-md-end">
+        <a href="/incidents/new" class="btn btn-primary">
+            <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+            Report Incident
+        </a>
     </div>
 </div>
 
@@ -35,7 +38,10 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+            <button type="submit" class="btn btn-primary w-100">
+                <i data-lucide="filter" style="width: 16px; height: 16px;"></i>
+                Apply Filter
+            </button>
         </div>
     </form>
 </div>
