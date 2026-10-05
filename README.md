@@ -2,6 +2,12 @@
 
 A comprehensive disaster management platform for reporting incidents, managing shelters, and coordinating aid requests during emergencies.
 
+## 🌐 Live Demo
+
+**Deployed URL:** [https://resq-bbx4.onrender.com](https://resq-bbx4.onrender.com)
+
+---
+
 ## 🚀 Features
 
 - **Incident Reporting** — Citizens can report disasters with photos and location

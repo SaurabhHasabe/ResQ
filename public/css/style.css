@@ -200,7 +200,6 @@ small {
     border-color: var(--orange-500);
     box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.15),
                 0 0 0 1px rgba(234, 88, 12, 0.1);
-    /* transform: translateY(-4px) removed */
 }
 
 .card-hoverable:hover::before {
@@ -211,8 +210,8 @@ small {
     color: var(--orange-600);
 }
 
-.card-hoverable:hover .card-img-top {
-    transform: scale(1.03);
+.card-img-top {
+    border-bottom: 1px solid var(--border-light);
 }
 
 .shadow-sm {
