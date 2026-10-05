@@ -1,19 +1,28 @@
-// Usage: initializeMap('map', 0, 0, 2);
+// Mapbox GL JS map utility
+// Usage: initializeMap('map', lat, lng, zoom, readOnly, popups)
 let map;
 let marker;
 
 function initializeMap(elementId, lat = 20.5937, lng = 78.9629, zoom = 4, readOnly = true, popups = []) {
-    map = L.map(elementId).setView([lat, lng], zoom);
+    mapboxgl.accessToken = window.MAPBOX_TOKEN;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
+    map = new mapboxgl.Map({
+        container: elementId,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [lng, lat],
+        zoom: zoom
+    });
+
+    // Navigation controls (zoom +/-)
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     if (!readOnly) {
-        marker = L.marker([lat, lng]).addTo(map);
+        // Place a draggable marker at the default center
+        marker = new mapboxgl.Marker({ color: '#e74c3c', draggable: true })
+            .setLngLat([lng, lat])
+            .addTo(map);
 
-        // Pre-fill hidden inputs with initial coords so form doesnt silently fail
+        // Pre-fill hidden inputs with initial coords
         const latInput = document.getElementById('latitude');
         const lngInput = document.getElementById('longitude');
         if (latInput && lngInput) {
@@ -21,29 +30,41 @@ function initializeMap(elementId, lat = 20.5937, lng = 78.9629, zoom = 4, readOn
             lngInput.value = lng;
         }
 
-        map.on('click', function(e) {
-            const { lat, lng } = e.latlng;
-            if (marker) {
-                map.removeLayer(marker);
-            }
-            marker = L.marker([lat, lng]).addTo(map);
-
-            // Set values to hidden inputs if they exist
+        // Update inputs when marker is dragged
+        marker.on('dragend', () => {
+            const { lat: newLat, lng: newLng } = marker.getLngLat();
             const latInput = document.getElementById('latitude');
             const lngInput = document.getElementById('longitude');
             if (latInput && lngInput) {
-                latInput.value = lat;
-                lngInput.value = lng;
+                latInput.value = newLat;
+                lngInput.value = newLng;
+            }
+        });
+
+        // Click anywhere on the map to move marker
+        map.on('click', (e) => {
+            const { lat: newLat, lng: newLng } = e.lngLat;
+            marker.setLngLat([newLng, newLat]);
+
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            if (latInput && lngInput) {
+                latInput.value = newLat;
+                lngInput.value = newLng;
             }
         });
     }
 
     if (popups.length > 0) {
         popups.forEach(p => {
-            const [lng, lat] = p.coordinates;
-            L.marker([lat, lng])
-                .addTo(map)
-                .bindPopup(p.popupMarkup);
+            const [pLng, pLat] = p.coordinates;
+            const popup = new mapboxgl.Popup({ offset: 25 })
+                .setHTML(p.popupMarkup);
+
+            new mapboxgl.Marker({ color: '#e74c3c' })
+                .setLngLat([pLng, pLat])
+                .setPopup(popup)
+                .addTo(map);
         });
     }
 }

@@ -56,11 +56,36 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://unpkg.com', "'unsafe-inline'"],
-            styleSrc: ["'self'", 'https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://fonts.googleapis.com', "'unsafe-inline'"],
-            fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-            imgSrc: ["'self'", 'data:', 'blob:', 'https://*.tile.openstreetmap.org', 'https://*.openstreetmap.org', 'https://res.cloudinary.com'],
-            connectSrc: ["'self'"],
+            scriptSrc: [
+                "'self'",
+                'https://cdn.jsdelivr.net',
+                'https://unpkg.com',
+                'https://api.mapbox.com',
+                "'unsafe-inline'"
+            ],
+            styleSrc: [
+                "'self'",
+                'https://cdn.jsdelivr.net',
+                'https://unpkg.com',
+                'https://fonts.googleapis.com',
+                'https://api.mapbox.com',
+                "'unsafe-inline'"
+            ],
+            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net'],
+            imgSrc: [
+                "'self'", 'data:', 'blob:',
+                'https://*.mapbox.com',
+                'https://res.cloudinary.com'
+            ],
+            connectSrc: [
+                "'self'",
+                'https://*.mapbox.com',
+                'https://events.mapbox.com',
+                'https://cdn.jsdelivr.net',
+                'https://unpkg.com'
+            ],
+            workerSrc: ["'self'", 'blob:'],
+            childSrc: ["'self'", 'blob:'],
             objectSrc: ["'none'"],
             frameAncestors: ["'none'"]
         }
