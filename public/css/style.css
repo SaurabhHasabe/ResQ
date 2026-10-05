@@ -127,13 +127,13 @@ small {
     background: var(--slate-950) !important;
     border-bottom: 3px solid var(--orange-500);
     box-shadow: var(--shadow-sm);
-    padding: 1rem 0;
+    padding: 0.625rem 0;
 }
 
 .navbar-custom .navbar-brand {
     color: #ffffff !important;
     font-weight: 800;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     letter-spacing: -0.02em;
 }
 
@@ -144,8 +144,8 @@ small {
 .navbar-custom .nav-link {
     color: var(--slate-300) !important;
     font-weight: 500;
-    font-size: 1rem;
-    padding: 0.625rem 1.25rem !important;
+    font-size: 0.9375rem;
+    padding: 0.5rem 1rem !important;
     margin: 0 0.25rem;
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
@@ -163,7 +163,7 @@ small {
 }
 
 .body-fixed-nav {
-    padding-top: 84px;
+    padding-top: 70px;
 }
 
 /* ============================================================================
@@ -175,35 +175,44 @@ small {
     border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+    position: relative;
+    animation: fadeInUp 0.4s ease-out;
 }
 
-.card:hover {
-    border-color: var(--border-medium);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+/* Base styles for card hover */
+.card-hoverable::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--orange-600), var(--orange-400));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+    z-index: 2;
 }
 
-.card-body {
-    padding: 1.5rem;
+.card-hoverable:hover {
+    border-color: var(--orange-500);
+    box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.15),
+                0 0 0 1px rgba(234, 88, 12, 0.1);
+    transform: translateY(-4px);
 }
 
-.card-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--slate-900);
-    margin-bottom: 0.5rem;
+.card-hoverable:hover::before {
+    transform: scaleX(1);
 }
 
-.card-text {
-    color: var(--text-secondary);
-    font-size: 0.9375rem;
-    line-height: 1.6;
+.card-hoverable:hover .card-title {
+    color: var(--orange-600);
 }
 
-.card-img-top {
-    border-bottom: 1px solid var(--border-light);
+.card-hoverable:hover .card-img-top {
+    transform: scale(1.03);
 }
 
 .shadow-sm {
@@ -353,18 +362,18 @@ small {
 
 /* Severity Badges - Distinct from generic AI colors */
 .badge-severity-high {
-    background: var(--critical);
-    color: #ffffff;
+    background: #b91c1c;
+    color: #fef2f2;
 }
 
 .badge-severity-medium {
-    background: var(--medium);
-    color: #ffffff;
+    background: #c2410c;
+    color: #fff7ed;
 }
 
 .badge-severity-low {
-    background: var(--low);
-    color: #ffffff;
+    background: #15803d;
+    color: #f0fdf4;
 }
 
 .bg-success {

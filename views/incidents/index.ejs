@@ -6,10 +6,10 @@
 </script>
 
 <div class="row mb-4 align-items-center">
-    <div class="col-md-8 text-center text-md-start">
+    <div class="col-md-4 text-center text-md-start">
         <h1 class="mb-0">Verified Incidents</h1>
     </div>
-    <div class="col-md-4 text-center text-md-end">
+    <div class="col-md-auto ms-auto">
         <a href="/incidents/new" class="btn btn-primary">
             <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
             Report Incident
@@ -17,9 +17,9 @@
     </div>
 </div>
 
-<div class="card mb-4 p-3 shadow-sm border-0">
-    <form action="/incidents" method="GET" class="row gx-2 gy-2 align-items-center">
-        <div class="col-md-3">
+<div class="card bg-white mb-4 p-3 shadow-sm border" style="transform: none; animation: none;">
+    <form action="/incidents" method="GET" class="row gx-3 gy-2 align-items-center">
+        <div class="col-md-4">
             <select name="category" class="form-select">
                 <option value="">All Categories</option>
                 <option value="flood" <%= category === 'flood' ? 'selected' : '' %>>Flood</option>
@@ -29,7 +29,7 @@
                 <option value="other" <%= category === 'other' ? 'selected' : '' %>>Other</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <select name="severity" class="form-select">
                 <option value="">All Severities</option>
                 <option value="high" <%= severity === 'high' ? 'selected' : '' %>>High</option>
@@ -37,8 +37,8 @@
                 <option value="low" <%= severity === 'low' ? 'selected' : '' %>>Low</option>
             </select>
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">
+        <div class="col-md-auto ms-auto">
+            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
                 <i data-lucide="filter" style="width: 16px; height: 16px;"></i>
                 Apply Filter
             </button>
@@ -60,7 +60,7 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <% for (let incident of incidents) { %>
             <div class="col">
-                <div class="card h-100 shadow-sm border-0">
+                <div class="card card-hoverable h-100 shadow-sm border-0">
                     <% if(incident.photos && incident.photos.length) { %>
                         <img src="<%= incident.photos[0].url %>" class="card-img-top" style="object-fit: cover; height: 180px;" alt="Incident Image">
                     <% } %>
