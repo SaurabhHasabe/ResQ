@@ -1,16 +1,26 @@
 {
   "name": "resq",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-    "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+  "description": "ResQ - Disaster Management System for reporting incidents, managing shelters, and coordinating aid requests",
+  "main": "app.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "seed": "node init/index.js"
+    "seed": "node init/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "disaster-management",
+    "emergency-response",
+    "incident-reporting",
+    "shelter-management",
+    "aid-coordination"
+  ],
+  "author": "Saurabh Hasabe",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

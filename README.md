@@ -1,135 +1,245 @@
-# ResQ — Disaster Response & Relief Coordination
+# ResQ - Disaster Management System
 
-A full-stack platform that connects **citizens**, **volunteers**, and **admins** during emergencies (floods, fires, earthquakes, building collapses).
+A comprehensive disaster management platform for reporting incidents, managing shelters, and coordinating aid requests during emergencies.
 
-[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
-[![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![EJS](https://img.shields.io/badge/EJS-A91E50?style=for-the-badge&logo=ejs&logoColor=white)](https://ejs.co/)
-[![Passport](https://img.shields.io/badge/Passport-34E27A?style=for-the-badge&logo=passport&logoColor=white)](https://www.passportjs.org/)
-[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg?style=for-the-badge)](LICENSE)
+## 🚀 Features
 
----
-
-## What it does
-
-- **Citizens** report incidents (with map pin + photos), raise aid requests, and browse shelters.
-- **Admins** verify incidents, score priority, manage shelters, and assign volunteers.
-- **Volunteers** update assignment status in the field (`assigned → en_route → in_progress → resolved`).
-
-## Features
-
-- Role-based auth (Passport + sessions stored in MongoDB)
-- Incident verification workflow and rule-based priority scores
-- GeoJSON locations (2dsphere indexes) and Leaflet maps
-- Joi + HTML validation (phone, capacity, coordinates, lengths)
-- CSRF protection, Helmet, rate limits, NoSQL sanitization
-- Photo uploads via Cloudinary, or local `/uploads` in development
+- **Incident Reporting** — Citizens can report disasters with photos and location
+- **Emergency Shelters** — Real-time shelter capacity tracking
+- **Aid Requests** — Coordinate rescue, medical, food, water, and other aid
+- **Interactive Maps** — Mapbox GL JS with real-time markers
+- **User Roles** — Admin, Volunteer, and Citizen access levels
+- **Secure Authentication** — Passport.js with bcrypt password hashing
 
 ---
 
-## Getting started
+## 📋 Prerequisites
 
-**Prerequisites:** Node.js 18+, MongoDB (local or Atlas). Cloudinary is optional in development.
+- Node.js (v18+)
+- MongoDB (local or MongoDB Atlas)
+- Cloudinary account (image uploads)
+- Mapbox account (maps)
+
+---
+
+## 🛠️ Local Development Setup
+
+### 1. Clone and Install
 
 ```bash
-git clone https://github.com/SaurabhHasabe/ResQ.git
-cd ResQ
+git clone <your-repo-url>
+cd Mini-Project-III
 npm install
-cp .env.example .env   # then fill in values
-npm run seed            # optional sample data
-npm start               # or: npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) (`/` redirects to `/incidents`).
+### 2. Environment Variables
 
-### Seed accounts
+Create `.env` file:
 
-| Username     | Password | Role      |
-|--------------|----------|-----------|
-| `admin`      | password | Admin     |
-| `volunteer1`| password | Volunteer |
-| `citizen1`   | password | Citizen   |
-
----
-
-## Environment variables
-
-Copy `.env.example`. Never commit `.env`.
-
-| Variable | Required | Notes |
-|----------|:--------:|-------|
-| `DB_URL` | Production | MongoDB URI. Defaults to `mongodb://127.0.0.1:27017/resq` in development |
-| `SESSION_SECRET` | Production | Must be a strong random string in production |
-| `NODE_ENV` | No | `production` enables secure cookies and hides stack traces |
-| `PORT` | No | Defaults to `3000` |
-| `CLOUDINARY_CLOUD_NAME` | No* | Image hosting |
-| `CLOUDINARY_KEY` | No* | |
-| `CLOUDINARY_SECRET` | No* | |
-
-\*If Cloudinary is unset, incident photos are stored under `uploads/` locally.
-
-`GET /health` returns `{ "ok": true }` when Mongo is connected.
-
----
-
-## Project structure
-
-```
-ResQ/
-├── app.js                 # Server bootstrap (middleware, listen)
-├── schema.js              # Joi validation
-├── middleware.js
-├── cloudConfig.js
-├── routes/                # All HTTP routes (mounted from routes/index.js)
-├── controllers/
-├── models/
-├── views/
-├── public/
-├── utils/
-├── init/                  # Seed scripts (npm run seed)
-│   ├── data.js
-│   └── index.js
-└── .env.example
+```bash
+NODE_ENV=development
+PORT=3000
+DB_URL=mongodb://127.0.0.1:27017/resq
+SESSION_SECRET=generate-with-openssl-rand-base64-32
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_KEY=your_key
+CLOUDINARY_SECRET=your_secret
+MAPBOX_TOKEN=your_token
 ```
 
----
+**Generate SESSION_SECRET:**
+```bash
+openssl rand -base64 32
+```
 
-## Routes
+### 3. Seed Database
 
-| Method | Path | Who |
-|--------|------|-----|
-| `GET` | `/` | Public → `/incidents` |
-| `GET` | `/health` | Public |
-| `GET/POST` | `/register`, `/login` | Public |
-| `POST` | `/logout` | Auth |
-| `GET` | `/profile` | Auth |
-| `GET/POST` | `/incidents`, `/incidents/new` | List public; create auth |
-| `GET/PUT/DELETE` | `/incidents/:id` | View public; edit/delete owner or admin |
-| `GET` | `/shelters` | Public |
-| `POST` | `/shelters` | Admin |
-| `GET/PUT/DELETE` | `/shelters/:id` | View public; mutate admin |
-| `GET/POST` | `/requests` | List public; create auth |
-| `GET` | `/assignments` | Volunteer / admin |
-| `PUT` | `/assignments/:id` | Volunteer / admin |
-| `GET` | `/admin/dashboard` | Admin |
-| `POST` | `/admin/incidents/:id/verify` | Admin |
-| `POST` | `/admin/assign` | Admin |
+```bash
+npm run seed
+```
 
----
+**Default credentials:**
+- Admin: `admin` / `Admin@1234`
+- Volunteer: `ravi_v` / `Ravi@5678`
+- Citizen: `suresh_c` / `Suresh@1234`
 
-## Roles
+### 4. Start Server
 
-| Action | Citizen | Volunteer | Admin |
-|--------|:-------:|:---------:|:-----:|
-| Report incident / request aid | ✅ | ✅ | ✅ |
-| Manage shelters | ❌ | ❌ | ✅ |
-| Verify incidents | ❌ | ❌ | ✅ |
-| Assign volunteers | ❌ | ❌ | ✅ |
-| Update assignment status | ❌ | ✅ | ✅ |
+```bash
+npm run dev    # Development with auto-reload
+npm start      # Production
+```
+
+Visit: `http://localhost:3000`
 
 ---
 
-## License
+## 🚀 Production Deployment
 
-ISC. See [LICENSE](LICENSE).
+### Step 1: Get Your Credentials
+
+| Service | Sign Up | Get Credentials |
+|---------|---------|-----------------|
+| **MongoDB** | [cloud.mongodb.com](https://cloud.mongodb.com) | Create cluster → Get connection string |
+| **Cloudinary** | [cloudinary.com](https://cloudinary.com) | Dashboard → Cloud name, API key, Secret |
+| **Mapbox** | [mapbox.com](https://mapbox.com) | Account → Access tokens |
+
+### Step 2: Deploy to Render (Recommended - Free)
+
+1. **Push to GitHub**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Create Render Account**
+   - Go to [render.com](https://render.com)
+   - Sign up with GitHub
+
+3. **Create Web Service**
+   - Click "New" → "Web Service"
+   - Connect your GitHub repository
+   - Configure:
+     - **Name:** resq-disaster-management
+     - **Environment:** Node
+     - **Build Command:** `npm install`
+     - **Start Command:** `npm start`
+
+4. **Add Environment Variables**
+   Click "Environment" tab and add:
+   ```
+   NODE_ENV=production
+   DB_URL=mongodb+srv://username:password@cluster.mongodb.net/resq
+   SESSION_SECRET=<your-generated-secret>
+   CLOUDINARY_CLOUD_NAME=<your-value>
+   CLOUDINARY_KEY=<your-value>
+   CLOUDINARY_SECRET=<your-value>
+   MAPBOX_TOKEN=<your-value>
+   ```
+
+5. **Deploy**
+   - Click "Create Web Service"
+   - Wait 3-5 minutes for build
+   - Your app will be live at: `https://your-app.onrender.com`
+
+6. **Seed Database** (Optional)
+   - Go to "Shell" tab in Render
+   - Run: `npm run seed`
+   - Login and change admin password!
+
+### Alternative: Deploy to Railway
+
+Same steps as Render:
+1. Sign up at [railway.app](https://railway.app)
+2. "New Project" → "Deploy from GitHub"
+3. Add environment variables
+4. Auto-deploys on push
+
+### Alternative: Deploy to VPS (Ubuntu)
+
+```bash
+# 1. Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 2. Install PM2
+sudo npm install -g pm2
+
+# 3. Clone and setup
+git clone <your-repo>
+cd Mini-Project-III
+npm install --production
+
+# 4. Create .env file
+nano .env  # Add your production variables
+
+# 5. Start with PM2
+pm2 start app.js --name resq
+pm2 startup
+pm2 save
+
+# 6. Optional: Setup Nginx + SSL
+sudo apt-get install -y nginx certbot python3-certbot-nginx
+# Configure nginx reverse proxy
+sudo certbot --nginx -d your-domain.com
+```
+
+---
+
+## 🔒 Security Checklist
+
+Before deploying:
+
+- [ ] `NODE_ENV=production` is set
+- [ ] Strong `SESSION_SECRET` generated (min 32 characters)
+- [ ] `.env` file is NOT committed to Git
+- [ ] MongoDB connection string is correct
+- [ ] All API keys are valid
+- [ ] Default admin password will be changed after first login
+
+---
+
+## 📁 Project Structure
+
+```
+Mini-Project-III/
+├── models/          # Mongoose schemas
+├── routes/          # Express routes
+├── views/           # EJS templates
+├── public/          # Static assets (CSS, JS)
+├── middleware/      # Custom middleware
+├── utils/           # Utilities (error handling)
+├── init/            # Database seeding
+├── app.js           # Main application
+└── package.json
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Database Connection Fails
+- Verify MongoDB connection string format
+- Check IP whitelist in MongoDB Atlas (add `0.0.0.0/0`)
+- Ensure database user has read/write permissions
+
+### Images Not Uploading
+- Verify all three Cloudinary credentials are correct
+- Check file size (max 5MB per image)
+
+### Map Not Loading
+- Verify `MAPBOX_TOKEN` is set correctly
+- Check browser console for errors
+
+### App Won't Start
+- Check all required environment variables are set
+- Review logs for specific error message
+
+---
+
+## 📊 Free Tier Limits
+
+- **MongoDB Atlas:** 512 MB storage
+- **Cloudinary:** 25 credits/month (~25K images)
+- **Mapbox:** 50K map loads/month
+- **Render:** 750 hours/month
+
+---
+
+## 🆘 Need Help?
+
+- **MongoDB:** https://www.mongodb.com/docs/atlas/
+- **Cloudinary:** https://cloudinary.com/documentation
+- **Mapbox:** https://docs.mapbox.com/
+- **Render:** https://render.com/docs
+
+---
+
+## 📝 License
+
+ISC
+
+## 👨‍💻 Author
+
+Saurabh Hasabe - B.Tech Mini Project III
