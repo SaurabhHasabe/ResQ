@@ -1,11 +1,219 @@
 <% layout('layouts/boilerplate') %>
-<div class="row">
-    <div class="col-6 offset-3">
-        <div class="alert alert-danger" role="alert">
-            <h4 class="alert-heading"><%= err.message %></h4>
-            <% if(process.env.NODE_ENV !== "production" && err.stack) { %>
-                <p><%= err.stack %></p>
-            <% } %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <!-- Error Card -->
+            <div class="error-container">
+                <!-- Status Code Badge -->
+                <div class="error-badge">
+                    <span class="error-code"><%= err.statusCode %></span>
+                </div>
+
+                <!-- Icon -->
+                <div class="error-icon-wrapper">
+                    <i data-lucide="<%= err.icon || 'alert-circle' %>" class="error-icon"></i>
+                </div>
+
+                <!-- Error Title -->
+                <h1 class="error-title"><%= err.title %></h1>
+
+                <!-- Error Message -->
+                <p class="error-message"><%= err.message %></p>
+
+                <!-- Action Buttons -->
+                <div class="error-actions">
+                    <% if (err.showLogin) { %>
+                        <a href="/login" class="btn btn-primary">
+                            <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+                            Log In
+                        </a>
+                    <% } %>
+
+                    <% if (err.showRetry) { %>
+                        <button onclick="location.reload()" class="btn btn-primary">
+                            <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                            Try Again
+                        </button>
+                    <% } %>
+
+                    <% if (err.showHome || err.statusCode === 404) { %>
+                        <a href="/" class="btn btn-primary">
+                            <i data-lucide="home" style="width: 16px; height: 16px;"></i>
+                            Go Home
+                        </a>
+                    <% } %>
+
+                    <% if (!err.showLogin && !err.showRetry && !err.showHome) { %>
+                        <button onclick="history.back()" class="btn btn-outline-secondary">
+                            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                            Go Back
+                        </button>
+                    <% } %>
+
+                    <% if (err.statusCode !== 404) { %>
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i data-lucide="home" style="width: 16px; height: 16px;"></i>
+                            Home
+                        </a>
+                    <% } %>
+                </div>
+
+                <!-- Stack Trace (Development Only) -->
+                <% if (err.stack && process.env.NODE_ENV !== 'production') { %>
+                    <details class="error-stack">
+                        <summary>Developer Info (Stack Trace)</summary>
+                        <pre><code><%= err.stack %></code></pre>
+                    </details>
+                <% } %>
+
+                <!-- Help Text -->
+                <div class="error-help">
+                    <p class="text-muted small mb-0">
+                        <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+                        If this problem persists, please contact our support team.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+.error-container {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    border-radius: 18px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    margin-top: 2rem;
+    border: 1px solid #e5e7eb;
+}
+
+.error-badge {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.error-code {
+    display: inline-block;
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    color: #ffffff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 6px -1px rgba(30, 64, 175, 0.2);
+}
+
+.error-icon-wrapper {
+    margin-bottom: 1.5rem;
+}
+
+.error-icon {
+    width: 80px !important;
+    height: 80px !important;
+    color: #9ca3af;
+    stroke-width: 1.5;
+    opacity: 0.5;
+}
+
+.error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+}
+
+.error-message {
+    font-size: 1.125rem;
+    color: #4b5563;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.error-stack {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.error-stack summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+    user-select: none;
+}
+
+.error-stack summary:hover {
+    color: #1e40af;
+}
+
+.error-stack pre {
+    background: #ffffff;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #dc2626;
+    border: 1px solid #e5e7eb;
+    margin: 0;
+}
+
+.error-stack code {
+    font-family: 'Courier New', monospace;
+}
+
+.error-help {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.error-help p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .error-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+    }
+
+    .error-message {
+        font-size: 1rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .error-actions .btn {
+        width: 100%;
+    }
+}
+</style>
