@@ -182,7 +182,19 @@ module.exports = (err, req, res, next) => {
             console.error(`[${new Date().toISOString()}] ${statusCode} Error:`, err);
         }
     } else if (statusCode >= 400 && !isProd) {
-        // Log client errors in development only
+        // Log client errors in development only (excluding common 404s for static assets)
+        // Only log if it's not a favicon or common browser request
+        if (statusCode === 404 && req.path &&
+            (req.path.includes('/favicon') ||
+             req.path.includes('apple-touch-icon') ||
+             req.path.includes('android-chrome') ||
+             req.path.includes('.map') ||
+             req.path.includes('sw.js') ||
+             req.path.includes('robots.txt') ||
+             req.path.includes('sitemap.xml'))) {
+            // Silently ignore common missing static resources
+            return;
+        }
         console.warn(`[${new Date().toISOString()}] ${statusCode} Client Error:`, err.message);
     }
 
