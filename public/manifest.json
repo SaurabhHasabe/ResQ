@@ -1,0 +1,20 @@
+{
+  "name": "ResQ - Disaster Management",
+  "short_name": "ResQ",
+  "description": "Emergency response and disaster management system for reporting incidents, managing shelters, and coordinating aid requests",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["emergency", "utilities"],
+  "prefer_related_applications": false
+}

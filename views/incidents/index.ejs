@@ -6,19 +6,23 @@
 </script>
 
 <div class="row mb-4 align-items-center">
-    <div class="col-md-4 text-center text-md-start">
+    <div class="col-12 col-md-4 text-center text-md-start">
         <h1 class="mb-0">Verified Incidents</h1>
     </div>
-    <div class="col-md-auto ms-auto">
-        <a href="/incidents/new" class="btn btn-primary">
+    <div class="col-12 col-md-auto text-center text-md-start ms-md-auto mt-2 mt-md-0">
+        <a href="/incidents/new" class="btn btn-primary btn-block-mobile justify-content-center">
             <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
             Report Incident
         </a>
     </div>
 </div>
 
-<div class="card bg-white mb-4 p-3 shadow-sm border" style="transform: none; animation: none;">
-    <form action="/incidents" method="GET" class="row gx-3 gy-2 align-items-center">
+<div class="card bg-white mb-4 p-3 shadow-sm border filter-panel-mobile" style="transform: none; animation: none;">
+    <button class="btn btn-outline-secondary filter-toggle d-lg-none mb-3" type="button" id="filter-toggle-btn">
+        <span>Show Filters</span>
+        <i data-lucide="chevron-down" id="filter-chevron" style="width: 16px; height: 16px; margin-left: 0.5rem;"></i>
+    </button>
+    <form action="/incidents" method="GET" class="row gx-3 gy-2 align-items-center filter-content" id="filter-content">
         <div class="col-md-4">
             <select name="category" class="form-select">
                 <option value="">All Categories</option>
@@ -38,13 +42,41 @@
             </select>
         </div>
         <div class="col-md-auto ms-auto">
-            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+            <button type="submit" class="btn btn-primary d-flex align-items-center gap-2 btn-block-mobile">
                 <i data-lucide="filter" style="width: 16px; height: 16px;"></i>
                 Apply Filter
             </button>
         </div>
     </form>
 </div>
+
+<script>
+// Filter toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('filter-toggle-btn');
+    const filterContent = document.getElementById('filter-content');
+    const chevron = document.getElementById('filter-chevron');
+
+    if (toggleBtn && filterContent) {
+        // Auto-collapse on mobile by default
+        if (window.innerWidth < 992) {
+            filterContent.style.display = 'none';
+        }
+
+        toggleBtn.addEventListener('click', function() {
+            if (filterContent.style.display === 'none') {
+                filterContent.style.display = 'flex';
+                chevron.style.transform = 'rotate(180deg)';
+                toggleBtn.querySelector('span').textContent = 'Hide Filters';
+            } else {
+                filterContent.style.display = 'none';
+                chevron.style.transform = 'rotate(0deg)';
+                toggleBtn.querySelector('span').textContent = 'Show Filters';
+            }
+        });
+    }
+});
+</script>
 
 <!-- Map at the top, full width -->
 <div id="map" class="mb-4" style="height: 400px; border-radius: 8px;"></div>
