@@ -14,6 +14,11 @@ router.get('/health', (req, res) => {
     res.status(dbOk ? 200 : 503).json({ ok: dbOk });
 });
 
+// Browsers always request /favicon.ico — serve our SVG to prevent 404 logs
+router.get('/favicon.ico', (req, res) => {
+    res.redirect(301, '/favicon.svg');
+});
+
 router.get('/', (req, res) => {
     res.redirect('/incidents');
 });
