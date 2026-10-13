@@ -33,8 +33,8 @@ A comprehensive disaster management platform for reporting incidents, managing s
 ### 1. Clone and Install
 
 ```bash
-git clone <your-repo-url>
-cd Mini-Project-III
+git clone "https://github.com/SaurabhHasabe/ResQ.git"
+cd ResQ
 npm install
 ```
 
