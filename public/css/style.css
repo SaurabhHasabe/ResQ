@@ -1053,7 +1053,7 @@ footer a:hover {
 
 /* Improve touch targets and spacing */
 @media (max-width: 768px) {
-    main a:not(.btn):not(.nav-link):not(.navbar-brand) {
+    main a:not(.btn):not(.nav-link):not(.navbar-brand):not(.list-group-item):not(.alert-item):not(.card) {
         padding: 0.25rem 0;
     }
 
