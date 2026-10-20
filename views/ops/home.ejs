@@ -44,48 +44,8 @@
     </div>
 </div>
 
-<div id="map" class="page-map mb-4"></div>
-
-<div class="row g-4">
-    <div class="col-lg-7">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0">Live incidents</h3>
-            <a class="section-link" href="/incidents">All verified</a>
-        </div>
-        <% if (!incidents.length) { %>
-            <div class="empty-state"><p>No verified incidents yet.</p></div>
-        <% } %>
-        <div class="list-group">
-            <% for (const inc of incidents) { %>
-                <a href="/incidents/<%= inc._id %>" class="list-group-item list-group-item-action">
-                    <div class="d-flex justify-content-between">
-                        <strong><%= inc.title %></strong>
-                        <span class="badge badge-severity-<%= inc.verifiedSeverity || inc.selfReportedSeverity %>"><%= inc.verifiedSeverity || inc.selfReportedSeverity %></span>
-                    </div>
-                    <small class="text-muted"><%= inc.category %> · <%= inc.address %></small>
-                </a>
-            <% } %>
-        </div>
-    </div>
-    <div class="col-lg-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0">Open shelters</h3>
-            <a class="section-link" href="/shelters">Directory</a>
-        </div>
-        <% if (!shelters.length) { %>
-            <div class="empty-state"><p>No open shelters listed.</p></div>
-        <% } %>
-        <% for (const s of shelters) { %>
-            <a href="/shelters/<%= s._id %>" class="card border-0 shadow-sm mb-2 text-decoration-none text-reset">
-                <div class="card-body py-3">
-                    <strong><%= s.name %></strong>
-                    <div class="small text-muted"><%= s.address %></div>
-                    <div class="small"><%= s.currentOccupancy %> / <%= s.totalCapacity %> · <%= s.status %></div>
-                </div>
-            </a>
-        <% } %>
-    </div>
-</div>
+<div id="map" class="page-map mb-3"></div>
+<p class="small text-muted mb-0">Tap a pin for details. Full lists live under <a class="map-caption-link" href="/incidents">Incidents</a> and <a class="map-caption-link" href="/shelters">Shelters</a>.</p>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

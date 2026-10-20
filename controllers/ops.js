@@ -12,7 +12,7 @@ module.exports.home = async (req, res) => {
         status: { $in: ['open', 'full'] }
     }).sort({ createdAt: -1 }).limit(6);
     const popups = [...incidentPopups(incidents), ...shelterPopups(shelters)];
-    res.render('ops/home', { stats, incidents, shelters, popups });
+    res.render('ops/home', { stats, popups });
 };
 
 module.exports.feed = async (req, res) => {
