@@ -6,10 +6,12 @@
         if (ticking) return;
         ticking = true;
         requestAnimationFrame(() => {
-            nav.classList.toggle('is-scrolled', window.scrollY > 8);
+            const y = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+            nav.classList.toggle('is-scrolled', y > 8);
             ticking = false;
         });
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
+    document.body.addEventListener('scroll', onScroll, { passive: true });
 })();

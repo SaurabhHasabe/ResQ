@@ -6,7 +6,7 @@
 /* Pull-to-refresh hint (visual only) */
 @media (max-width: 768px) {
     body {
-        overscroll-behavior-y: contain;
+        overscroll-behavior-y: auto;
     }
 }
 

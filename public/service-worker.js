@@ -1,5 +1,5 @@
 // ResQ Service Worker - Basic Offline Support
-const CACHE_NAME = 'resq-v6';
+const CACHE_NAME = 'resq-v11';
 
 // Only cache files that actually exist
 const urlsToCache = [
@@ -56,18 +56,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: cache-first
+  // Static assets: network-first so CSS/JS scroll and UI fixes reach phones
   if (url.pathname.startsWith('/css/') || url.pathname.startsWith('/js/')) {
     event.respondWith(
-      caches.match(event.request).then(cached => {
-        return cached || fetch(event.request).then(response => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        });
-      })
+      fetch(event.request).then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
     );
     return;
   }

@@ -77,7 +77,11 @@ function initializeMap(elementId, lat = 20.5937, lng = 78.9629, zoom = 4, readOn
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
         zoom: zoom,
-        fadeDuration: 0
+        fadeDuration: 0,
+        cooperativeGestures: true,
+        dragRotate: false,
+        touchPitch: false,
+        pitchWithRotate: false
     });
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');

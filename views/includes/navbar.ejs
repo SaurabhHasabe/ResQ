@@ -28,9 +28,9 @@
           </li>
           <% } %>
         </ul>
-        <ul class="navbar-nav ms-auto align-items-center">
+        <ul class="navbar-nav ms-auto align-items-center nav-auth-actions">
             <% if(!currentUser) { %>
-                <li class="nav-item">
+                <li class="nav-item nav-auth-login">
                     <a class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/login' ? 'active' : '' %>" href="/login">Login</a>
                 </li>
                 <li class="nav-item ms-lg-2">
@@ -45,8 +45,8 @@
                         <% } %>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white-50 <%= typeof currentPath !== 'undefined' && currentPath === '/profile' ? 'active fw-semibold' : '' %>" href="/profile"><i data-lucide="user" class="icon-sm"></i> <%= currentUser.username %></a>
+                <li class="nav-item nav-account-name">
+                    <a class="nav-link text-white-50 <%= typeof currentPath !== 'undefined' && currentPath === '/profile' ? 'active fw-semibold' : '' %>" href="/profile"><i data-lucide="user" class="icon-sm"></i> <span><%= currentUser.username %></span></a>
                 </li>
                 <li class="nav-item ms-lg-3">
                     <form action="<%= formAction('/logout') %>" method="POST" class="d-inline">

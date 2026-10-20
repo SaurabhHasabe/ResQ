@@ -515,6 +515,140 @@ textarea::placeholder {
     opacity: 0.75;
 }
 
+html {
+    height: auto;
+}
+
+body {
+    min-height: 100dvh;
+    overflow-x: clip;
+}
+
+.row {
+    max-width: 100%;
+}
+
+img, svg, video {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 991px) {
+    html {
+        height: auto;
+        overflow: visible;
+    }
+
+    body,
+    body.body-fixed-nav {
+        height: auto;
+        min-height: 100dvh;
+        overflow-x: clip;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        touch-action: manipulation;
+        padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    }
+
+    main.container {
+        max-width: 100%;
+        overflow: visible;
+    }
+
+    .ops-hero,
+    .hub-hero {
+        padding: 1.35rem 1.1rem;
+    }
+
+    .ops-hero h1,
+    .hub-hero h1 {
+        max-width: none;
+        font-size: 1.7rem;
+    }
+
+    .ops-hero .d-flex {
+        gap: 0.5rem;
+    }
+
+    .ops-hero .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #map,
+    .page-map,
+    .mapboxgl-map {
+        height: min(36vh, 240px) !important;
+        min-height: 160px;
+        width: 100%;
+        touch-action: pan-y;
+    }
+
+    .table-responsive,
+    .table-responsive-mobile {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        touch-action: pan-x pan-y;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .navbar-custom .container {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+
+    .navbar-custom .navbar-brand {
+        flex-shrink: 0;
+    }
+
+    .navbar-custom .navbar-collapse {
+        flex-grow: 0 !important;
+        width: auto !important;
+        min-width: 0;
+    }
+
+    .navbar-custom .navbar-nav.ms-auto,
+    .navbar-custom .nav-auth-actions {
+        max-width: none;
+        flex-wrap: nowrap;
+        overflow: visible;
+        gap: 0.35rem;
+    }
+
+    .navbar-custom .nav-auth-login {
+        display: none;
+    }
+
+    .navbar-custom .nav-account-name span {
+        display: none;
+    }
+
+    .navbar-custom .nav-auth-actions .btn {
+        white-space: nowrap;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .mobile-bottom-nav {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-bottom-nav .nav-link span {
+        font-size: 0.65rem;
+        line-height: 1.1;
+    }
+
+    .card,
+    .list-group,
+    .form-control,
+    .form-select,
+    .btn {
+        max-width: 100%;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation: none !important;

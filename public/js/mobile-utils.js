@@ -21,47 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('android-device');
     }
 
-    // Prevent zoom on input focus (iOS)
-    preventIOSZoom();
-
-    // Network status monitoring - DISABLED until service worker issues resolved
-    // initNetworkMonitoring();
-
-    // Enhanced touch interactions
-    initTouchEnhancements();
-
-    // Auto-hide address bar on scroll (mobile browsers)
-    if (window.innerWidth < 768) {
-        let lastScroll = 0;
-        window.addEventListener('scroll', function() {
-            const currentScroll = window.pageYOffset;
-            if (currentScroll > lastScroll && currentScroll > 100) {
-                // Scrolling down
-                document.body.classList.add('scrolled-down');
-            } else {
-                // Scrolling up
-                document.body.classList.remove('scrolled-down');
-            }
-            lastScroll = currentScroll;
-        }, { passive: true });
-    }
 });
-
-// Prevent iOS zoom on double-tap
-function preventIOSZoom() {
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(event) {
-        if (event.target.closest && event.target.closest('#map, .mapboxgl-map, .mapboxgl-canvas')) {
-            lastTouchEnd = Date.now();
-            return;
-        }
-        const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-            event.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, { passive: false });
-}
 
 // Network status monitoring
 function initNetworkMonitoring() {
@@ -93,9 +53,6 @@ function initNetworkMonitoring() {
         offlineIndicator.classList.add('show');
     }
 }
-
-// Enhanced touch interactions
-function initTouchEnhancements() {}
 
 // Show toast notification
 function showToast(message, duration = 3000) {
