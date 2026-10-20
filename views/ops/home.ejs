@@ -9,35 +9,35 @@
     <p class="lead mb-4">Live incident map, verified shelters, and on-ground volunteers. Citizens start here. Volunteers take nearby tasks after an admin approves them.</p>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-primary btn-lg" href="/incidents/new">Report an incident</a>
-        <a class="btn btn-outline-light btn-lg" href="/requests/new">Request aid</a>
-        <a class="btn btn-outline-light btn-lg" href="/shelters">Find a shelter</a>
+        <a class="btn btn-outline-primary btn-lg" href="/requests/new">Request aid</a>
+        <a class="btn btn-outline-primary btn-lg" href="/shelters">Find a shelter</a>
         <% if (!currentUser) { %>
-            <a class="btn btn-outline-warning btn-lg" href="/register">Join as citizen</a>
+            <a class="btn btn-outline-secondary btn-lg" href="/register">Join as citizen</a>
         <% } %>
     </div>
 </section>
 
 <div class="row g-3 mb-4 text-center">
     <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="card border-0 shadow-sm h-100 stat-card"><div class="card-body">
             <div class="text-muted small">Verified incidents</div>
             <h2 class="mb-0"><%= stats.verifiedIncidents %></h2>
         </div></div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="card border-0 shadow-sm h-100 stat-card"><div class="card-body">
             <div class="text-muted small">Reports (24h)</div>
             <h2 class="mb-0"><%= stats.incidents24h %></h2>
         </div></div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="card border-0 shadow-sm h-100 stat-card"><div class="card-body">
             <div class="text-muted small">Shelter beds left</div>
             <h2 class="mb-0"><%= stats.shelterBedsLeft %></h2>
         </div></div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+        <div class="card border-0 shadow-sm h-100 stat-card"><div class="card-body">
             <div class="text-muted small">Open aid requests</div>
             <h2 class="mb-0"><%= stats.openRequests %></h2>
         </div></div>

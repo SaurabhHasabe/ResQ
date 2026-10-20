@@ -1,9 +1,14 @@
 <% layout('layouts/boilerplate') %>
-<div class="row justify-content-center py-3 py-md-4">
+<div class="row justify-content-center py-3 py-md-4 auth-shell">
         <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+            <div class="text-center mb-4">
+                <p class="eyebrow mb-2">Welcome back</p>
+                <h2 class="mb-1">Sign in to ResQ</h2>
+                <p class="text-muted mb-0">Continue reporting, volunteering, or coordinating response.</p>
+            </div>
             <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-center mb-4">Login</h5>
+                <div class="card-body p-4">
+                    <h5 class="card-title visually-hidden">Login</h5>
                     <form action="<%= formAction('/login') %>" method="POST" class="needs-validation" novalidate>
                         <%- include('../includes/csrf') %>
                         <div class="mb-3">

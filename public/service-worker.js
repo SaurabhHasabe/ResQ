@@ -1,13 +1,15 @@
 // ResQ Service Worker - Basic Offline Support
-const CACHE_NAME = 'resq-v2';
+const CACHE_NAME = 'resq-v5';
 
 // Only cache files that actually exist
 const urlsToCache = [
   '/css/style.css',
   '/css/mobile-enhancements.css',
+  '/css/theme.css',
   '/js/mobile-utils.js',
   '/js/map.js',
-  '/js/forms.js'
+  '/js/forms.js',
+  '/js/ui.js'
 ];
 
 // Install event - cache only known-good assets

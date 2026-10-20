@@ -76,14 +76,19 @@ function initializeMap(elementId, lat = 20.5937, lng = 78.9629, zoom = 4, readOn
         container: elementId,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [lng, lat],
-        zoom: zoom
+        zoom: zoom,
+        fadeDuration: 0
     });
 
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('load', () => map.resize());
+    let resizeTimer;
     window.addEventListener('resize', () => {
-        if (map) map.resize();
-    });
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (map) map.resize();
+        }, 150);
+    }, { passive: true });
 
     if (!readOnly) {
         marker = new mapboxgl.Marker({ color: '#e74c3c', draggable: true })

@@ -95,29 +95,7 @@ function initNetworkMonitoring() {
 }
 
 // Enhanced touch interactions
-function initTouchEnhancements() {
-    // Add active state to cards on touch
-    const cards = document.querySelectorAll('.card-hoverable');
-    cards.forEach(card => {
-        card.addEventListener('touchstart', function() {
-            this.style.transform = 'scale(0.98)';
-        }, { passive: true });
-
-        card.addEventListener('touchend', function() {
-            this.style.transform = '';
-        }, { passive: true });
-
-        card.addEventListener('touchcancel', function() {
-            this.style.transform = '';
-        }, { passive: true });
-    });
-
-    // Add haptic feedback class to buttons
-    const buttons = document.querySelectorAll('.btn');
-    buttons.forEach(btn => {
-        btn.classList.add('haptic-feedback');
-    });
-}
+function initTouchEnhancements() {}
 
 // Show toast notification
 function showToast(message, duration = 3000) {
