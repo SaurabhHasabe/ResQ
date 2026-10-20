@@ -20,17 +20,6 @@ module.exports.feed = async (req, res) => {
     res.json(data);
 };
 
-module.exports.health = async (req, res) => {
-    const mongoose = require('mongoose');
-    const dbOk = mongoose.connection.readyState === 1;
-    res.status(dbOk ? 200 : 503).json({
-        ok: dbOk,
-        service: 'resq',
-        db: dbOk ? 'up' : 'down',
-        uptime: Math.round(process.uptime())
-    });
-};
-
 module.exports.notifications = async (req, res) => {
     const notes = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(50);
     res.render('ops/notifications', { notes });

@@ -9,7 +9,7 @@ Disaster operations platform for reporting incidents, managing shelters, and coo
 - Incident reports with photos and Mapbox location
 - Nearest volunteers (within 50 km) can accept or reject reports and claim aid
 - Shelter listing and occupancy; community shelters wait for admin approval
-- Public operations board at `/` and JSON feed at `/api/ops`
+- Public operations board at `/`, JSON feed at `/api/ops`, health check at `GET /health`
 - In-app alerts (no email/SMTP)
 - Password recovery with username + registered Indian mobile, or an admin-issued password
 - Sudo admins: allowlisted emails become admin on register or login

@@ -14,7 +14,7 @@ Do not set SMTP. Alerts are in-app only.
 
 1. Push the repo to GitHub.
 2. [render.com](https://render.com) → New → Web Service → that repo.
-3. **Build:** `npm install` · **Start:** `npm start` · **Environment:** Node.
+3. **Build:** `npm install` · **Start:** `npm start` · **Environment:** Node. Health check path: `/health` (JSON; `200` if Mongo is up, `503` if not).
 4. Environment variables:
 
 ```

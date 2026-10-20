@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const geo = require('../utils/geo');
 const { isSudoAdminEmail } = require('../utils/sudoAdmins');
 const { forgotSchema, userSchema } = require('../schema');
+const { healthStatus } = require('../routes/health');
 
 test('rejects empty geo points', () => {
     assert.equal(geo.isValidPoint(null), false);
@@ -29,6 +30,15 @@ test('register requires a valid Indian mobile', () => {
         password: 'password1'
     });
     assert.ok(error);
+});
+
+test('health payload names the service and reports db', async () => {
+    const body = await healthStatus();
+    assert.equal(body.service, 'resq');
+    assert.equal(typeof body.ok, 'boolean');
+    assert.ok(body.db === 'up' || body.db === 'down');
+    assert.equal(typeof body.uptime, 'number');
+    assert.ok(body.timestamp);
 });
 
 test('password recovery uses username and phone, not email', () => {

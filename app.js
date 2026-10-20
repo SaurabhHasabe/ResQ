@@ -101,6 +101,8 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+app.use('/health', require('./routes/health'));
+
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 300,

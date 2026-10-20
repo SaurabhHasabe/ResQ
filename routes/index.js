@@ -7,8 +7,6 @@ const adminRoutes = require('./admin');
 const assignmentRoutes = require('./assignments');
 const volunteerRoutes = require('./volunteers');
 const opsRoutes = require('./ops');
-const ops = require('../controllers/ops');
-const catchAsync = require('../utils/catchAsync');
 
 const router = express.Router();
 
@@ -17,7 +15,6 @@ function sendAppIcon(req, res) {
     res.sendFile('favicon.svg', { root: require('path').join(__dirname, '..', 'public') });
 }
 
-router.get('/health', catchAsync(ops.health));
 router.get('/favicon.ico', sendAppIcon);
 router.get('/apple-touch-icon.png', sendAppIcon);
 router.get('/apple-touch-icon-precomposed.png', sendAppIcon);
