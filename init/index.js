@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
-}
+require('dotenv').config();
 
 const mongoose = require('mongoose');
 const User = require('../models/user');
@@ -16,8 +14,8 @@ const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/resq';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 const seedDB = async () => {
-    if (process.env.NODE_ENV === 'production') {
-        console.error('Refusing to seed while NODE_ENV=production.');
+    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== '1') {
+        console.error('Refusing to seed while NODE_ENV=production. Set ALLOW_SEED=1 to override (this wipes the database).');
         process.exit(1);
     }
     await mongoose.connect(dbUrl);
