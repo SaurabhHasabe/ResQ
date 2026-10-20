@@ -1,5 +1,5 @@
 // ResQ Service Worker - Basic Offline Support
-const CACHE_NAME = 'resq-v5';
+const CACHE_NAME = 'resq-v6';
 
 // Only cache files that actually exist
 const urlsToCache = [

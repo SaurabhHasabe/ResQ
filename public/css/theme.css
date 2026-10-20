@@ -402,6 +402,114 @@ a:not(.btn):not(.nav-link):not(.navbar-brand):hover {
 .role-badge.role-volunteer { background: var(--teal); }
 .role-badge.role-citizen { background: #0369a1; }
 
+::selection {
+    background: rgba(226, 75, 59, 0.18);
+    color: var(--ink);
+}
+
+:root {
+    accent-color: var(--accent);
+}
+
+.form-control::placeholder,
+textarea::placeholder {
+    color: #a8a29e;
+}
+
+.form-text {
+    color: var(--muted);
+}
+
+.badge {
+    border-radius: 999px;
+    font-weight: 650;
+}
+
+.stat-card {
+    box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.list-group {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--line);
+}
+
+.list-group-item {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.list-group-item:last-child {
+    border-bottom: 0;
+}
+
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.table-hover > tbody > tr:hover > * {
+    --bs-table-bg-state: var(--accent-soft);
+    color: var(--ink);
+}
+
+.section-link {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--accent) !important;
+}
+
+.section-link:hover {
+    color: var(--accent-2) !important;
+    text-decoration: underline;
+}
+
+.mobile-bottom-nav .nav-link {
+    border-radius: 0.85rem;
+    margin: 0 0.15rem;
+}
+
+.mobile-bottom-nav .nav-link.active {
+    background: var(--accent-soft);
+}
+
+.mapboxgl-popup-content {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    border-radius: 0.85rem;
+    border: 1px solid var(--line);
+    box-shadow: none;
+    padding: 0.75rem 0.9rem;
+    color: var(--ink);
+}
+
+.mapboxgl-popup-content a {
+    color: var(--accent);
+}
+
+.mapboxgl-ctrl-group {
+    border: 1px solid var(--line) !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+
+.amenity-chip:hover,
+.amenity-chip:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.navbar-custom .navbar-brand svg {
+    transition: opacity 0.15s ease;
+}
+
+.navbar-custom .navbar-brand:hover svg {
+    opacity: 0.75;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation: none !important;
