@@ -1,0 +1,95 @@
+<% layout('layouts/boilerplate') %>
+<script>
+    window.opsPopups = <%- JSON.stringify(popups) %>;
+</script>
+
+<section class="ops-hero mb-4">
+    <p class="eyebrow mb-2">Public emergency operations</p>
+    <h1 class="mb-3">ResQ — report, shelter, respond</h1>
+    <p class="lead mb-4">Live incident map, verified shelters, and on-ground volunteers. Citizens start here. Volunteers take nearby tasks after an admin approves them.</p>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary btn-lg" href="/incidents/new">Report an incident</a>
+        <a class="btn btn-outline-light btn-lg" href="/requests/new">Request aid</a>
+        <a class="btn btn-outline-light btn-lg" href="/shelters">Find a shelter</a>
+        <% if (!currentUser) { %>
+            <a class="btn btn-outline-warning btn-lg" href="/register">Join as citizen</a>
+        <% } %>
+    </div>
+</section>
+
+<div class="row g-3 mb-4 text-center">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Verified incidents</div>
+            <h2 class="mb-0"><%= stats.verifiedIncidents %></h2>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Reports (24h)</div>
+            <h2 class="mb-0"><%= stats.incidents24h %></h2>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Shelter beds left</div>
+            <h2 class="mb-0"><%= stats.shelterBedsLeft %></h2>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="text-muted small">Open aid requests</div>
+            <h2 class="mb-0"><%= stats.openRequests %></h2>
+        </div></div>
+    </div>
+</div>
+
+<div id="map" class="page-map mb-4"></div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Live incidents</h3>
+            <a href="/incidents">All verified</a>
+        </div>
+        <% if (!incidents.length) { %>
+            <div class="empty-state"><p>No verified incidents yet.</p></div>
+        <% } %>
+        <div class="list-group">
+            <% for (const inc of incidents) { %>
+                <a href="/incidents/<%= inc._id %>" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between">
+                        <strong><%= inc.title %></strong>
+                        <span class="badge badge-severity-<%= inc.verifiedSeverity || inc.selfReportedSeverity %>"><%= inc.verifiedSeverity || inc.selfReportedSeverity %></span>
+                    </div>
+                    <small class="text-muted"><%= inc.category %> · <%= inc.address %></small>
+                </a>
+            <% } %>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">Open shelters</h3>
+            <a href="/shelters">Directory</a>
+        </div>
+        <% if (!shelters.length) { %>
+            <div class="empty-state"><p>No open shelters listed.</p></div>
+        <% } %>
+        <% for (const s of shelters) { %>
+            <a href="/shelters/<%= s._id %>" class="card border-0 shadow-sm mb-2 text-decoration-none text-reset">
+                <div class="card-body py-3">
+                    <strong><%= s.name %></strong>
+                    <div class="small text-muted"><%= s.address %></div>
+                    <div class="small"><%= s.currentOccupancy %> / <%= s.totalCapacity %> · <%= s.status %></div>
+                </div>
+            </a>
+        <% } %>
+        <p class="small text-muted mt-3 mb-0">Partners can poll <code>/api/ops</code> for a public JSON feed. Status: <code>/health</code>.</p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeMap('map', 22.5, 79, 4, true, window.opsPopups || []);
+    });
+</script>

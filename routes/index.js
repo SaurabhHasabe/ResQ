@@ -1,33 +1,46 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const userRoutes = require('./users');
 const incidentRoutes = require('./incidents');
 const shelterRoutes = require('./shelters');
 const requestRoutes = require('./requests');
 const adminRoutes = require('./admin');
 const assignmentRoutes = require('./assignments');
+const volunteerRoutes = require('./volunteers');
+const opsRoutes = require('./ops');
+const ops = require('../controllers/ops');
+const catchAsync = require('../utils/catchAsync');
 
 const router = express.Router();
 
-router.get('/health', (req, res) => {
-    const dbOk = mongoose.connection.readyState === 1;
-    res.status(dbOk ? 200 : 503).json({ ok: dbOk });
+function sendAppIcon(req, res) {
+    res.type('image/svg+xml');
+    res.sendFile('favicon.svg', { root: require('path').join(__dirname, '..', 'public') });
+}
+
+router.get('/health', catchAsync(ops.health));
+router.get('/favicon.ico', sendAppIcon);
+router.get('/apple-touch-icon.png', sendAppIcon);
+router.get('/apple-touch-icon-precomposed.png', sendAppIcon);
+router.get('/apple-touch-icon-120x120.png', sendAppIcon);
+router.get('/apple-touch-icon-152x152.png', sendAppIcon);
+router.get('/apple-touch-icon-167x167.png', sendAppIcon);
+router.get('/apple-touch-icon-180x180.png', sendAppIcon);
+
+router.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => {
+    res.status(204).end();
 });
 
-// Browsers always request /favicon.ico — serve our SVG to prevent 404 logs
-router.get('/favicon.ico', (req, res) => {
-    res.redirect(301, '/favicon.svg');
+router.get('/robots.txt', (req, res) => {
+    res.type('text/plain').send('User-agent: *\nDisallow:\n');
 });
 
-router.get('/', (req, res) => {
-    res.redirect('/incidents');
-});
-
+router.use('/', opsRoutes);
 router.use('/', userRoutes);
 router.use('/incidents', incidentRoutes);
 router.use('/shelters', shelterRoutes);
 router.use('/requests', requestRoutes);
 router.use('/admin', adminRoutes);
 router.use('/assignments', assignmentRoutes);
+router.use('/volunteer', volunteerRoutes);
 
 module.exports = router;

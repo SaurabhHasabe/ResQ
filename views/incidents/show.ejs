@@ -14,7 +14,7 @@
                     <div class="carousel-inner">
                         <% incident.photos.forEach((img, i) => { %>
                         <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
-                            <img src="<%= img.url %>" class="d-block w-100" alt="" style="object-fit: cover; height: 300px;">
+                            <img src="<%= img.url %>" class="d-block w-100 incident-photo" alt="">
                         </div>
                         <% }) %>
                     </div>
@@ -55,6 +55,56 @@
     </div>
     <div class="col-md-5">
         <div id="map" class="mb-4"></div>
+        <% if (incident.status === 'pending' && typeof canReview !== 'undefined' && canReview) { %>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Accept or reject this report</h5>
+                    <p class="small text-muted">You are among the nearest volunteers. Accepting verifies the incident and assigns it to you.</p>
+                    <form action="<%= formAction('/incidents/' + incident._id + '/review') %>" method="POST">
+                        <%- include('../includes/csrf') %>
+                        <div class="mb-2">
+                            <select name="status" class="form-select form-select-sm" required>
+                                <option value="verified">Accept / verify</option>
+                                <option value="rejected">Reject as false</option>
+                                <option value="duplicate">Mark duplicate</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <select name="verifiedSeverity" class="form-select form-select-sm">
+                                <option value="high" <%= incident.selfReportedSeverity==='high'?'selected':'' %>>High</option>
+                                <option value="medium" <%= incident.selfReportedSeverity==='medium'?'selected':'' %>>Medium</option>
+                                <option value="low" <%= incident.selfReportedSeverity==='low'?'selected':'' %>>Low</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-sm btn-primary w-100">Submit decision</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+        <% if (typeof nearestReviewers !== 'undefined' && nearestReviewers.length) { %>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Nearest volunteers</h6>
+                    <ul class="mb-0 ps-3">
+                        <% for (const v of nearestReviewers) { %>
+                            <li><%= v.username %></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        <% } %>
+        <% if (typeof nearbyShelters !== 'undefined' && nearbyShelters.length) { %>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Nearby open shelters</h6>
+                    <ul class="mb-0 ps-3">
+                        <% for (const s of nearbyShelters) { %>
+                            <li><a href="/shelters/<%= s._id %>"><%= s.name %></a> · <%= s.currentOccupancy %>/<%= s.totalCapacity %></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        <% } %>
         <% if(currentUser && currentUser.role === 'admin') { %>
             <div class="card shadow-sm border-0">
                 <div class="card-body">

@@ -1,46 +1,29 @@
 <% layout('layouts/boilerplate') %>
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <h2 class="mb-4">Add New Shelter</h2>
+    <div class="col-lg-8">
+        <p class="eyebrow">Offer a place</p>
+        <h2 class="mb-2">List your home or hall as a shelter</h2>
+        <p class="text-muted mb-4">Citizens can offer spare rooms, community halls, or any safe space. An admin verifies community listings before they appear on the public map.</p>
         <div class="card shadow-sm border-0">
-            <div class="card-body">
+            <div class="card-body p-4">
                 <form action="<%= formAction('/shelters') %>" method="POST" class="needs-validation" novalidate>
                     <%- include('../includes/csrf') %>
-                    <div class="mb-3">
-                        <label class="form-label" for="name">Shelter Name</label>
-                        <input class="form-control" type="text" id="name" name="shelter[name]" minlength="2" maxlength="120" required>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label" for="totalCapacity">Total Capacity</label>
-                            <input class="form-control" type="number" id="totalCapacity" name="shelter[totalCapacity]" min="1" max="100000" step="1" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="currentOccupancy">Current Occupancy</label>
-                            <input class="form-control" type="number" id="currentOccupancy" name="shelter[currentOccupancy]" min="0" max="100000" step="1" value="0" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="status">Status</label>
-                            <select class="form-select" id="status" name="shelter[status]" required>
-                                <option value="open">Open</option>
-                                <option value="full">Full</option>
-                                <option value="closed">Closed</option>
-                            </select>
-                        </div>
-                    </div>
+                    <%- include('../includes/shelter-fields') %>
 
                     <h5 class="mt-4">Location</h5>
+                    <p class="small text-muted">Allow location or tap the map to pin the place.</p>
                     <div id="map" class="mb-3"></div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="address">Address string</label>
+                        <label class="form-label" for="address">Address</label>
                         <input class="form-control" type="text" id="address" name="shelter[address]" minlength="5" maxlength="300" required>
                     </div>
                     <input type="hidden" name="shelter[latitude]" id="latitude" required>
                     <input type="hidden" name="shelter[longitude]" id="longitude" required>
 
-                    <button class="btn btn-primary mt-3 w-100">Add Shelter</button>
+                    <button class="btn btn-primary mt-2 w-100">
+                        <%= currentUser.role === 'admin' ? 'Publish shelter' : 'Submit for verification' %>
+                    </button>
                 </form>
             </div>
         </div>

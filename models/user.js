@@ -28,8 +28,38 @@ const UserSchema = new Schema({
         type: String,
         enum: ['citizen', 'volunteer', 'admin'],
         default: 'citizen'
+    },
+    volunteerStatus: {
+        type: String,
+        enum: ['none', 'pending', 'approved', 'rejected'],
+        default: 'none'
+    },
+    lastLocation: {
+        type: {
+            type: String,
+            enum: ['Point']
+        },
+        coordinates: {
+            type: [Number]
+        }
+    },
+    lastLocatedAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
+
+UserSchema.index({ lastLocation: '2dsphere' });
+
+UserSchema.pre('save', function () {
+    const loc = this.lastLocation;
+    const coords = loc && loc.coordinates;
+    const valid = Array.isArray(coords) && coords.length === 2
+        && Number.isFinite(Number(coords[0])) && Number.isFinite(Number(coords[1]));
+    if (!valid) {
+        this.lastLocation = undefined;
+    }
+});
 
 UserSchema.plugin(passportLocalMongoose, {
     usernameLowerCase: true,

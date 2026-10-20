@@ -1,0 +1,29 @@
+<% layout('layouts/boilerplate') %>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="eyebrow mb-1">Operations</p>
+        <h1 class="mb-0">Alerts</h1>
+    </div>
+    <% if (notes.length) { %>
+        <form action="<%= formAction('/notifications/read') %>" method="POST">
+            <%- include('../includes/csrf') %>
+            <button class="btn btn-outline-secondary btn-sm">Mark all read</button>
+        </form>
+    <% } %>
+</div>
+
+<% if (!notes.length) { %>
+    <div class="empty-state"><p>No alerts yet. Nearby incident and aid alerts appear here.</p></div>
+<% } else { %>
+    <div class="list-group">
+        <% for (const n of notes) { %>
+            <a href="<%= n.href %>" class="list-group-item list-group-item-action <%= n.readAt ? '' : 'list-group-item-warning' %>">
+                <div class="d-flex justify-content-between">
+                    <strong><%= n.title %></strong>
+                    <small class="text-muted"><%= new Date(n.createdAt).toLocaleString() %></small>
+                </div>
+                <div class="small"><%= n.body %></div>
+            </a>
+        <% } %>
+    </div>
+<% } %>

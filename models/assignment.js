@@ -14,9 +14,7 @@ const AssignmentSchema = new Schema({
     },
     targetId: {
         type: Schema.Types.ObjectId,
-        required: true,
-        // Using refPath allows dynamic referencing for Mongoose populate
-        refPath: 'targetType'
+        required: true
     },
     status: {
         type: String,

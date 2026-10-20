@@ -8,6 +8,7 @@ const Incident = require('../models/incident');
 const Shelter = require('../models/shelter');
 const Request = require('../models/request');
 const Assignment = require('../models/assignment');
+const VolunteerApplication = require('../models/volunteerApplication');
 const { sampleUsers, sampleIncidents, sampleShelters, sampleRequests } = require('./data');
 
 const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/resq';
@@ -15,6 +16,10 @@ const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/resq';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 const seedDB = async () => {
+    if (process.env.NODE_ENV === 'production') {
+        console.error('Refusing to seed while NODE_ENV=production.');
+        process.exit(1);
+    }
     await mongoose.connect(dbUrl);
     console.log('✅  Connected to MongoDB:', dbUrl);
 
@@ -25,23 +30,33 @@ const seedDB = async () => {
         Shelter.deleteMany({}),
         Request.deleteMany({}),
         Assignment.deleteMany({}),
+        VolunteerApplication.deleteMany({}),
     ]);
     console.log('🗑️   Cleared all existing data');
 
-    // 2. Create users (passport-local-mongoose handles password hashing)
     const createdUsers = [];
     for (const u of sampleUsers) {
-        const user = new User({ username: u.username, email: u.email, phone: u.phone, role: u.role });
+        const volunteerStatus = u.role === 'volunteer' ? 'approved' : 'none';
+        const user = new User({
+            username: u.username,
+            email: u.email,
+            phone: u.phone,
+            role: u.role,
+            volunteerStatus,
+            lastLocation: u.lastLocation
+                ? { type: 'Point', coordinates: u.lastLocation }
+                : undefined,
+            lastLocatedAt: u.lastLocation ? new Date() : null
+        });
         await User.register(user, u.password);
         createdUsers.push(user);
         console.log(`👤  Created user: ${u.username} (${u.role})`);
     }
 
-    const admin      = createdUsers.find(u => u.role === 'admin');
     const volunteers = createdUsers.filter(u => u.role === 'volunteer');
     const citizens   = createdUsers.filter(u => u.role === 'citizen');
+    const operator   = volunteers[0];
 
-    // 3. Create incidents
     const createdIncidents = [];
     for (const inc of sampleIncidents) {
         const doc = new Incident({
@@ -55,7 +70,7 @@ const seedDB = async () => {
             priorityScore:       inc.priorityScore,
             status:              inc.status,
             reportedBy:          pick(citizens)._id,
-            verifiedBy:          inc.status === 'verified' ? admin._id : null,
+            verifiedBy:          inc.status === 'verified' ? operator._id : null,
             verifiedAt:          inc.status === 'verified' ? new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000) : null,
         });
         await doc.save();
@@ -73,7 +88,11 @@ const seedDB = async () => {
             totalCapacity:    sh.totalCapacity,
             currentOccupancy: sh.currentOccupancy,
             status:           sh.status,
-            managedBy:        admin._id,
+            managedBy:        operator._id,
+            hostType:         'official',
+            verificationStatus: 'approved',
+            amenities:        sh.amenities || ['water', 'food', 'blankets', 'washroom'],
+            contactPhone:     operator.phone || '9823456781'
         });
         await doc.save();
         createdShelters.push(doc);
@@ -116,23 +135,54 @@ const seedDB = async () => {
             volunteer:  t.volunteer._id,
             targetType: t.targetType.toLowerCase(),
             targetId:   t.targetId,
-            assignedBy: admin._id,
+            assignedBy: operator._id,
             status:     pick(assignmentStatuses),
-            fieldNotes: 'Team dispatched. Coordinating with local police and fire department on ground.',
+            fieldNotes: 'On site with local police / NDRF. Updating as the ground situation changes.',
         });
         await doc.save();
         console.log(`📌  Created assignment: ${t.volunteer.username} → ${t.targetType}`);
     }
 
+    const applicant = citizens[0];
+    applicant.volunteerStatus = 'pending';
+    await applicant.save();
+    await VolunteerApplication.create({
+        applicant: applicant._id,
+        skills: ['logistics', 'driving'],
+        availability: 'weekends',
+        experience: 'Worked as a driver with BMC flood relief in Kurla after the 2005 deluge and later helped load NDRF boats in 2021 monsoon.',
+        message: 'Based in Mumbai. Can take night shifts during high tide alerts.',
+        status: 'pending'
+    });
+
+    const communityHost = citizens[1];
+    await Shelter.create({
+        name: 'Meppadi family rooms offered after Wayanad slides',
+        address: 'Near GHSS Meppadi, Vythiri, Wayanad, Kerala 673577',
+        location: { type: 'Point', coordinates: [76.1335, 11.5572] },
+        totalCapacity: 10,
+        currentOccupancy: 3,
+        status: 'open',
+        hostType: 'community',
+        verificationStatus: 'pending',
+        amenities: ['water', 'food', 'blankets', 'washroom'],
+        contactPhone: communityHost.phone,
+        notes: 'Two rooms on the ground floor for Chooralmala families. Women and children first. Listed by a local household, pending admin verification.',
+        managedBy: communityHost._id
+    });
+
     console.log('\n✅  Seeding complete!');
     console.log('─────────────────────────────────────────────');
-    console.log(`Users      : ${createdUsers.length}  (1 admin, ${volunteers.length} volunteers, ${citizens.length} citizens)`);
+    console.log(`Users      : ${createdUsers.length}  (${volunteers.length} volunteers, ${citizens.length} citizens)`);
     console.log(`Incidents  : ${createdIncidents.length}`);
     console.log(`Shelters   : ${createdShelters.length}`);
     console.log(`Requests   : ${createdRequests.length}`);
     console.log(`Assignments: ${assignmentTargets.length}`);
     console.log('─────────────────────────────────────────────');
-    console.log('\nLogin credentials:');
+    console.log('\nAdmin is not seeded. Register or log in with a sudo email:');
+    console.log('  utkarshkumar.cs18@gmail.com');
+    console.log('  saurya1729@gmail.com');
+    console.log('\nDemo logins:');
     for (const u of sampleUsers) {
         console.log(`  ${u.role.padEnd(9)} | username: ${u.username.padEnd(12)} | password: ${u.password}`);
     }

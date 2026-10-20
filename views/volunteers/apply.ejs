@@ -1,0 +1,63 @@
+<% layout('layouts/boilerplate') %>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <p class="eyebrow">Join the response team</p>
+        <h2 class="mb-2">Apply to become a volunteer</h2>
+        <p class="text-muted mb-4">Anyone can join as a citizen. Volunteer access is granted after an admin reviews your skills so on-ground assignments stay trusted.</p>
+
+        <% if (existing && existing.status === 'rejected') { %>
+            <div class="alert alert-warning">Your earlier application was declined<% if (existing.adminNote) { %>: <%= existing.adminNote %><% } %>. You can apply again with more detail.</div>
+        <% } %>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form action="<%= formAction('/volunteer/apply') %>" method="POST" class="needs-validation" novalidate>
+                    <%- include('../includes/csrf') %>
+
+                    <div class="mb-3">
+                        <span class="form-label d-block">Skills you can offer</span>
+                        <div class="amenity-grid">
+                            <% const skills = ['medical', 'rescue', 'driving', 'logistics', 'counseling', 'translation', 'other']; %>
+                            <% for (const skill of skills) { %>
+                                <label class="amenity-chip">
+                                    <input type="checkbox" name="skills" value="<%= skill %>">
+                                    <span><%= skill %></span>
+                                </label>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="availability">Availability</label>
+                        <select class="form-select" id="availability" name="availability" required>
+                            <option value="anytime">Anytime during emergencies</option>
+                            <option value="weekends">Weekends</option>
+                            <option value="weekdays">Weekdays</option>
+                            <option value="on-call">On-call / short notice</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="experience">Relevant experience</label>
+                        <textarea class="form-control" id="experience" name="experience" minlength="10" maxlength="2000" rows="4" required
+                            placeholder="First aid training, previous disaster camps, driving, local knowledge…"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="phone">Phone</label>
+                        <input class="form-control" type="tel" id="phone" name="phone" inputmode="numeric" maxlength="13"
+                            pattern="^(\+91)?[6-9][0-9]{9}$" value="<%= currentUser.phone || '' %>"
+                            placeholder="10-digit Indian mobile">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="message">Note for admins (optional)</label>
+                        <textarea class="form-control" id="message" name="message" maxlength="1000" rows="2"></textarea>
+                    </div>
+
+                    <button class="btn btn-primary w-100">Submit application</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

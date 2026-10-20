@@ -36,14 +36,26 @@ const shelterSchema = Joi.object({
         name: Joi.string().min(2).max(120).custom(stripHtml).required(),
         address: Joi.string().min(5).max(300).custom(stripHtml).required(),
         totalCapacity: Joi.number().integer().min(1).max(100000).required(),
-        currentOccupancy: Joi.number().integer().min(0).max(100000).required(),
-        status: Joi.string().valid('open', 'full', 'closed').required(),
+        currentOccupancy: Joi.number().integer().min(0).max(100000).default(0),
+        status: Joi.string().valid('open', 'full', 'closed').default('open'),
+        contactPhone: Joi.string().allow('', null).optional().custom((value, helpers) => {
+            if (value == null || String(value).trim() === '') return '';
+            const ten = normalizeIndianMobile(value);
+            if (!isValidIndianMobile(ten)) {
+                return helpers.message('Enter a valid 10-digit Indian mobile number');
+            }
+            return ten;
+        }),
+        notes: Joi.string().allow('').max(1000).custom(optionalStripHtml),
+        amenities: Joi.array().items(
+            Joi.string().valid('water', 'food', 'medical', 'power', 'blankets', 'washroom')
+        ).single().default([]),
         latitude: Joi.number().min(-90).max(90).required()
             .messages({ 'any.required': 'Pin a location on the map', 'number.base': 'Pin a location on the map' }),
         longitude: Joi.number().min(-180).max(180).required()
             .messages({ 'any.required': 'Pin a location on the map', 'number.base': 'Pin a location on the map' })
     }).required().custom((value, helpers) => {
-        if (value.currentOccupancy > value.totalCapacity) {
+        if ((value.currentOccupancy || 0) > value.totalCapacity) {
             return helpers.message('Current occupancy cannot exceed total capacity');
         }
         return value;
@@ -70,8 +82,20 @@ const userSchema = Joi.object({
         .messages({ 'string.pattern.base': 'Username must be 3–30 letters, numbers, or underscores' }),
     email: Joi.string().trim().email({ tlds: { allow: false } }).max(254).lowercase().required()
         .messages({ 'string.email': 'Enter a valid email address' }),
-    phone: Joi.string().allow('', null).optional().custom((value, helpers) => {
-        if (value == null || String(value).trim() === '') return '';
+    phone: Joi.string().required().custom((value, helpers) => {
+        const ten = normalizeIndianMobile(value);
+        if (!isValidIndianMobile(ten)) {
+            return helpers.message('Enter a valid 10-digit Indian mobile number');
+        }
+        return ten;
+    }),
+    password: Joi.string().min(8).max(128).required()
+        .messages({ 'string.min': 'Password must be at least 8 characters' })
+});
+
+const forgotSchema = Joi.object({
+    username: Joi.string().trim().pattern(/^[a-zA-Z0-9_]{3,30}$/).required(),
+    phone: Joi.string().required().custom((value, helpers) => {
         const ten = normalizeIndianMobile(value);
         if (!isValidIndianMobile(ten)) {
             return helpers.message('Enter a valid 10-digit Indian mobile number');
@@ -80,12 +104,17 @@ const userSchema = Joi.object({
     }),
     password: Joi.string().min(8).max(128).required()
         .messages({ 'string.min': 'Password must be at least 8 characters' }),
-    role: Joi.string().valid('citizen', 'volunteer').required()
+    confirmPassword: Joi.string().valid(Joi.ref('password')).required()
+        .messages({ 'any.only': 'Passwords do not match' })
+});
+
+const adminResetSchema = Joi.object({
+    username: Joi.string().trim().pattern(/^[a-zA-Z0-9_]{3,30}$/).required()
 });
 
 const assignmentUpdateSchema = Joi.object({
     status: Joi.string().valid('assigned', 'en_route', 'in_progress', 'resolved').required(),
-    fieldNotes: Joi.string().allow('').max(2000).custom(optionalStripHtml)
+    fieldNotes: Joi.string().allow('').max(2000).optional().custom(optionalStripHtml)
 });
 
 const verifyIncidentSchema = Joi.object({
@@ -107,6 +136,35 @@ const assignSchema = Joi.object({
     targetId: objectId.required()
 });
 
+const volunteerLocationSchema = Joi.object({
+    latitude: Joi.number().min(-90).max(90).required(),
+    longitude: Joi.number().min(-180).max(180).required(),
+    _csrf: Joi.string().optional()
+});
+
+const volunteerApplySchema = Joi.object({
+    skills: Joi.array().items(
+        Joi.string().valid('medical', 'rescue', 'driving', 'logistics', 'counseling', 'translation', 'other')
+    ).single().min(1).required().messages({ 'array.min': 'Select at least one skill' }),
+    availability: Joi.string().valid('weekdays', 'weekends', 'anytime', 'on-call').required(),
+    experience: Joi.string().min(10).max(2000).custom(stripHtml).required()
+        .messages({ 'string.min': 'Tell us a bit more about your experience (at least 10 characters)' }),
+    message: Joi.string().allow('').max(1000).custom(optionalStripHtml),
+    phone: Joi.string().allow('', null).optional().custom((value, helpers) => {
+        if (value == null || String(value).trim() === '') return '';
+        const ten = normalizeIndianMobile(value);
+        if (!isValidIndianMobile(ten)) {
+            return helpers.message('Enter a valid 10-digit Indian mobile number');
+        }
+        return ten;
+    })
+});
+
+const reviewSchema = Joi.object({
+    status: Joi.string().valid('approved', 'rejected').required(),
+    adminNote: Joi.string().allow('').max(500).custom(optionalStripHtml)
+});
+
 module.exports = {
     incidentSchema,
     shelterSchema,
@@ -114,5 +172,10 @@ module.exports = {
     userSchema,
     assignmentUpdateSchema,
     verifyIncidentSchema,
-    assignSchema
+    assignSchema,
+    volunteerApplySchema,
+    volunteerLocationSchema,
+    reviewSchema,
+    forgotSchema,
+    adminResetSchema
 };

@@ -119,7 +119,6 @@
 @media (max-width: 768px) {
     .form-control:focus,
     .form-select:focus {
-        transform: scale(1.01);
         transition: all 0.2s ease;
     }
 }
@@ -155,8 +154,8 @@
 /* Improved Status Bar Spacing for iOS */
 @media (max-width: 768px) {
     @supports (padding-top: env(safe-area-inset-top)) {
-        body {
-            padding-top: calc(70px + env(safe-area-inset-top));
+        body.body-fixed-nav {
+            padding-top: calc(70px + env(safe-area-inset-top, 0px));
         }
 
         .navbar-custom.fixed-top {

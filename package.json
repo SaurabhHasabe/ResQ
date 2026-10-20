@@ -11,7 +11,7 @@
     "start": "node app.js",
     "dev": "node --watch app.js",
     "seed": "node init/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test test/*.test.js"
   },
   "keywords": [
     "disaster-management",
@@ -33,7 +33,6 @@
     "ejs": "^6.0.1",
     "ejs-mate": "^4.0.0",
     "express": "^5.2.1",
-    "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.7.0",
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",

@@ -44,6 +44,42 @@
     </div>
     <div class="col-md-5">
         <div id="map" class="mb-4"></div>
+        <% if (typeof canClaim !== 'undefined' && canClaim) { %>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Accept this request</h5>
+                    <p class="small text-muted mb-3">You are among the nearest volunteers. Accepting assigns it to you.</p>
+                    <form action="<%= formAction('/requests/' + request._id + '/claim') %>" method="POST">
+                        <%- include('../includes/csrf') %>
+                        <button class="btn btn-sm btn-primary w-100">Accept request</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+        <% if (typeof nearestReviewers !== 'undefined' && nearestReviewers.length) { %>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Nearest volunteers</h6>
+                    <ul class="mb-0 ps-3">
+                        <% for (const v of nearestReviewers) { %>
+                            <li><%= v.username %></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        <% } %>
+        <% if (typeof nearbyShelters !== 'undefined' && nearbyShelters.length) { %>
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Nearby open shelters</h6>
+                    <ul class="mb-0 ps-3">
+                        <% for (const s of nearbyShelters) { %>
+                            <li><a href="/shelters/<%= s._id %>"><%= s.name %></a></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        <% } %>
         <% if(currentUser && currentUser.role === 'admin') { %>
             <div class="card shadow-sm border-0">
                 <div class="card-body">

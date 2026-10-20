@@ -19,7 +19,8 @@ const { csrfSync } = require('csrf-sync');
 const User = require('./models/user');
 const ExpressError = require('./utils/ExpressError');
 const errorHandler = require('./utils/errorHandler');
-const { sanitizeInput } = require('./middleware');
+const { sanitizeInput, promoteSudoAdmin } = require('./middleware');
+const { unreadCount } = require('./utils/notify');
 const routes = require('./routes');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -47,7 +48,12 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(compression());
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-app.use(methodOverride('_method'));
+app.use(express.json({ limit: '32kb' }));
+app.use(methodOverride((req) => {
+    if (req.body && typeof req.body._method === 'string') return req.body._method;
+    if (req.query && typeof req.query._method === 'string') return req.query._method;
+    return undefined;
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(sanitizeInput);
@@ -80,6 +86,7 @@ app.use(helmet({
             connectSrc: [
                 "'self'",
                 'https://*.mapbox.com',
+                'https://api.mapbox.com',
                 'https://events.mapbox.com',
                 'https://cdn.jsdelivr.net',
                 'https://unpkg.com'
@@ -138,29 +145,56 @@ const { generateToken, csrfSynchronisedProtection } = csrfSync({
 });
 
 app.use((req, res, next) => {
-    if (req.path === '/health') return next();
+    if (req.path === '/health' || req.path === '/api/ops') return next();
     csrfSynchronisedProtection(req, res, (err) => {
         if (err) return next(err);
         next();
     });
 });
 
-app.use((req, res, next) => {
+app.use(promoteSudoAdmin);
+
+app.use(async (req, res, next) => {
     res.locals.currentUser = req.user || null;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     res.locals.currentPath = req.originalUrl || '';
-    res.locals.csrfToken = req.path === '/health' ? '' : generateToken(req);
+    res.locals.csrfToken = req.path === '/health' || req.path === '/api/ops' ? '' : generateToken(req);
     res.locals.formAction = (url) => {
         const token = encodeURIComponent(res.locals.csrfToken || '');
         return url.includes('?') ? `${url}&_csrf=${token}` : `${url}?_csrf=${token}`;
     };
+    res.locals.unreadNotifications = 0;
+    try {
+        if (req.user) {
+            res.locals.unreadNotifications = await unreadCount(req.user._id);
+        }
+    } catch (err) {
+        next(err);
+        return;
+    }
     next();
 });
 
 app.use(routes);
 
+function isBrowserProbe(req) {
+    const p = req.path || '';
+    return (
+        p.includes('/favicon') ||
+        p.includes('apple-touch-icon') ||
+        p.includes('/.well-known/') ||
+        p.endsWith('.map') ||
+        p === '/robots.txt' ||
+        p === '/browserconfig.xml' ||
+        p === '/sitemap.xml'
+    );
+}
+
 app.use((req, res, next) => {
+    if (isBrowserProbe(req)) {
+        return res.status(204).end();
+    }
     next(new ExpressError('Page Not Found', 404));
 });
 

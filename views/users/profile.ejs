@@ -1,24 +1,84 @@
 <% layout('layouts/boilerplate') %>
+<% const role = currentUser.role; %>
+<% const vs = currentUser.volunteerStatus; %>
 
-<div class="row">
-    <div class="col-12 mb-4">
-        <h1 class="mb-3">My Profile</h1>
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h4><i data-lucide="user" class="icon-sm"></i> <%= currentUser.username %></h4>
-                <p class="text-muted mb-0">Role: <span class="badge bg-secondary text-capitalize"><%= currentUser.role %></span></p>
-                <p class="text-muted mb-0">Email: <%= currentUser.email %></p>
-                <% if (currentUser.phone) { %>
-                    <p class="text-muted mb-0">Phone: <%= currentUser.phone %></p>
-                <% } %>
-            </div>
-        </div>
+<div class="hub-hero mb-4">
+    <div>
+        <p class="eyebrow mb-1">Your ResQ hub</p>
+        <h1 class="mb-2">Hello, <%= currentUser.username %></h1>
+        <p class="mb-0 text-muted">
+            <% if (role === 'admin') { %>You oversee incidents, volunteers, and community shelters.<% } %>
+            <% if (role === 'volunteer') { %>You are an approved volunteer. Take assignments and keep field notes updated.<% } %>
+            <% if (role === 'citizen') { %>Report what you see, request aid, offer a room, or apply to volunteer on the ground.<% } %>
+        </p>
+    </div>
+    <div class="hub-meta">
+        <span class="badge role-badge role-<%= role %>"><%= role %></span>
+        <% if (role === 'citizen' && vs === 'pending') { %>
+            <span class="badge bg-warning text-dark">Volunteer review pending</span>
+        <% } else if (role === 'citizen' && vs === 'rejected') { %>
+            <span class="badge bg-danger">Volunteer application declined</span>
+        <% } %>
+        <div class="small text-muted mt-2"><%= currentUser.email %><% if (currentUser.phone) { %> · <%= currentUser.phone %><% } %></div>
     </div>
 </div>
 
+<div class="row g-3 mb-4 perk-grid">
+    <div class="col-6 col-lg-3">
+        <a class="perk-card" href="/incidents/new">
+            <i data-lucide="siren"></i>
+            <h3>Report an incident</h3>
+            <p>Flood, fire, collapse — pin the location and alert responders.</p>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="perk-card" href="/requests/new">
+            <i data-lucide="heart-handshake"></i>
+            <h3>Request aid</h3>
+            <p>Ask for rescue, medical help, food, water, or a bed.</p>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="perk-card" href="/shelters/new">
+            <i data-lucide="house-plus"></i>
+            <h3>Offer a shelter</h3>
+            <p>List your house or hall. Admins verify community listings.</p>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <% if (role === 'citizen' && vs !== 'pending') { %>
+            <a class="perk-card perk-card-accent" href="/volunteer/apply">
+                <i data-lucide="badge-check"></i>
+                <h3><%= vs === 'rejected' ? 'Re-apply as volunteer' : 'Become a volunteer' %></h3>
+                <p>Request admin approval for on-ground assignments.</p>
+            </a>
+        <% } else if (role === 'volunteer' || role === 'admin') { %>
+            <a class="perk-card perk-card-accent" href="/assignments">
+                <i data-lucide="clipboard-list"></i>
+                <h3>Your assignments</h3>
+                <p><% if (assignmentStats) { %><%= assignmentStats.active %> active · <%= assignmentStats.resolved %> resolved<% } else { %>Open field tasks<% } %></p>
+            </a>
+        <% } else { %>
+            <div class="perk-card perk-card-muted">
+                <i data-lucide="hourglass"></i>
+                <h3>Volunteer pending</h3>
+                <p>An admin is reviewing your application.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<% if (volunteerApp && volunteerApp.status === 'pending') { %>
+    <div class="alert alert-info">Volunteer application submitted <%= new Date(volunteerApp.createdAt).toLocaleDateString() %>. Skills: <%= volunteerApp.skills.join(', ') %>.</div>
+<% } %>
+
+<% if (role === 'admin') { %>
+    <a class="btn btn-dark mb-4" href="/admin/dashboard">Open admin dashboard</a>
+<% } %>
+
 <div class="row">
-    <div class="col-md-6 mb-4">
-        <h3>My Reported Incidents</h3>
+    <div class="col-lg-4 mb-4">
+        <h3 class="section-title">Reported incidents</h3>
         <% if(incidents && incidents.length > 0) { %>
             <div class="list-group">
                 <% for(let inc of incidents) { %>
@@ -27,21 +87,16 @@
                             <h5 class="mb-1"><%= inc.title %></h5>
                             <small class="text-muted"><%= inc.category %></small>
                         </div>
-                        <span class="badge badge-<%= inc.status %>">
-                            <%= inc.status.toUpperCase() %>
-                        </span>
+                        <span class="badge badge-<%= inc.status %>"><%= inc.status.toUpperCase() %></span>
                     </a>
                 <% } %>
             </div>
         <% } else { %>
-            <div class="empty-state">
-                <i data-lucide="alert-circle" class="icon-lg"></i>
-                <p>You haven't reported any incidents yet.</p>
-            </div>
+            <div class="empty-state"><p>No incidents yet. Reporting is how the response starts.</p></div>
         <% } %>
     </div>
-    <div class="col-md-6 mb-4">
-        <h3>My Aid Requests</h3>
+    <div class="col-lg-4 mb-4">
+        <h3 class="section-title">Aid requests</h3>
         <% if(requests && requests.length > 0) { %>
             <div class="list-group">
                 <% for(let req of requests) { %>
@@ -50,17 +105,30 @@
                             <h5 class="mb-1 text-capitalize"><%= req.type %></h5>
                             <small class="text-muted">Urgency: <%= req.urgency %></small>
                         </div>
-                        <span class="badge badge-<%= req.status %>">
-                            <%= req.status.toUpperCase() %>
-                        </span>
+                        <span class="badge badge-<%= req.status %>"><%= req.status.toUpperCase() %></span>
                     </a>
                 <% } %>
             </div>
         <% } else { %>
-            <div class="empty-state">
-                <i data-lucide="helping-hand" class="icon-lg"></i>
-                <p>You haven't made any aid requests yet.</p>
+            <div class="empty-state"><p>No aid requests yet.</p></div>
+        <% } %>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <h3 class="section-title">Places you listed</h3>
+        <% if(shelters && shelters.length > 0) { %>
+            <div class="list-group">
+                <% for(let s of shelters) { %>
+                    <a href="/shelters/<%= s._id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1"><%= s.name %></h5>
+                            <small class="text-muted"><%= s.hostType %> · <%= s.currentOccupancy %>/<%= s.totalCapacity %></small>
+                        </div>
+                        <span class="badge badge-<%= s.verificationStatus %>"><%= s.verificationStatus %></span>
+                    </a>
+                <% } %>
             </div>
+        <% } else { %>
+            <div class="empty-state"><p>You have not listed a shelter yet.</p></div>
         <% } %>
     </div>
 </div>

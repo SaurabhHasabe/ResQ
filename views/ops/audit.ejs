@@ -1,0 +1,25 @@
+<% layout('layouts/boilerplate') %>
+<p class="eyebrow">Admin</p>
+<h1 class="mb-4">Operations audit</h1>
+<div class="table-responsive card border-0 shadow-sm">
+    <table class="table mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>When</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (const log of logs) { %>
+                <tr>
+                    <td class="small text-muted"><%= new Date(log.createdAt).toLocaleString() %></td>
+                    <td><%= log.actor ? log.actor.username : 'system' %></td>
+                    <td><code><%= log.action %></code></td>
+                    <td><%= log.summary %></td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>

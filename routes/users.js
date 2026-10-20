@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const users = require('../controllers/users');
 const passport = require('passport');
 const { rateLimit } = require('express-rate-limit');
-const { storeReturnTo, validateUser, isLoggedIn } = require('../middleware');
+const { storeReturnTo, validateUser, isLoggedIn, validateForgot } = require('../middleware');
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -25,12 +25,16 @@ router.route('/login')
         authLimiter,
         storeReturnTo,
         passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }),
-        users.login
+        catchAsync(users.login)
     );
 
 router.post('/logout', users.logout);
 router.get('/logout', users.logout);
 
 router.get('/profile', isLoggedIn, catchAsync(users.showProfile));
+
+router.route('/forgot')
+    .get(users.renderForgot)
+    .post(authLimiter, validateForgot, catchAsync(users.forgot));
 
 module.exports = router;

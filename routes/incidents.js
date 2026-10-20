@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const incidents = require('../controllers/incidents');
 const catchAsync = require('../utils/catchAsync');
-const { isLoggedIn, isIncidentAuthor, validateIncident, isValidObjectId } = require('../middleware');
+const { isLoggedIn, isIncidentAuthor, validateIncident, isValidObjectId, isVolunteer, canReviewIncident, validateVerify } = require('../middleware');
 const { upload } = require('../cloudConfig');
 
 router.route('/')
@@ -17,5 +17,15 @@ router.route('/:id')
     .delete(isLoggedIn, isValidObjectId, isIncidentAuthor, catchAsync(incidents.deleteIncident));
 
 router.get('/:id/edit', isLoggedIn, isValidObjectId, isIncidentAuthor, catchAsync(incidents.renderEditForm));
+
+router.post(
+    '/:id/review',
+    isLoggedIn,
+    isVolunteer,
+    isValidObjectId,
+    canReviewIncident,
+    validateVerify,
+    catchAsync(incidents.review)
+);
 
 module.exports = router;

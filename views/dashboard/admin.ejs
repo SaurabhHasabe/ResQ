@@ -1,11 +1,10 @@
 <% layout('layouts/boilerplate') %>
-<div class="container my-4">
-    <div class="text-center mb-4">
+<div class="text-center mb-4">
         <h1 class="mb-3">Admin Dashboard</h1>
     </div>
     
     <div class="row text-center mb-5 gx-3 gy-3">
-        <div class="col-md-3">
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="card border-0 shadow-sm bg-light h-100">
                 <div class="card-body">
                     <h5 class="text-muted">Verified Incidents</h5>
@@ -13,7 +12,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="card border-0 shadow-sm bg-light h-100">
                 <div class="card-body">
                     <h5 class="text-muted">Open Requests</h5>
@@ -21,7 +20,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="card border-0 shadow-sm bg-light h-100">
                 <div class="card-body">
                     <h5 class="text-muted">Shelter Occupancy</h5>
@@ -29,11 +28,27 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-4 col-xl-2">
             <div class="card border-0 shadow-sm bg-light h-100">
                 <div class="card-body">
                     <h5 class="text-muted">Unassigned Tasks</h5>
                     <h3><%= unassignedTasks %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h5 class="text-muted">Volunteer queue</h5>
+                    <h3><%= pendingApplications.length %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm bg-light h-100">
+                <div class="card-body">
+                    <h5 class="text-muted">Shelter queue</h5>
+                    <h3><%= pendingShelters.length %></h3>
                 </div>
             </div>
         </div>
@@ -50,14 +65,19 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 border-end">
+                            <div class="col-12 col-md-6 border-end">
                                 <h5><a href="/incidents/<%= inc._id %>"><%= inc.title %></a></h5>
                                 <p class="mb-1 text-muted small"><%= inc.address %></p>
                                 <span class="badge bg-secondary"><%= inc.category %></span>
                                 <span class="badge badge-severity-<%= inc.selfReportedSeverity %>">Self-Reported: <%= inc.selfReportedSeverity %></span>
                                 <p class="mt-2"><small><strong>Suggested Priority Score:</strong> <%= inc.suggestedScore %></small></p>
+                                <% if (inc.nearestReviewers && inc.nearestReviewers.length) { %>
+                                    <p class="mb-0 small text-muted">Nearest volunteers: <%= inc.nearestReviewers.map(v => v.username).join(', ') %></p>
+                                <% } else { %>
+                                    <p class="mb-0 small text-muted">No volunteer has shared a location near this report yet.</p>
+                                <% } %>
                             </div>
-                            <div class="col-md-6 d-flex align-items-center">
+                            <div class="col-12 col-md-6 d-flex align-items-center">
                                 <form action="<%= formAction('/admin/incidents/' + inc._id + '/verify') %>" method="POST" class="w-100 row gy-2 gx-2 align-items-center">
                                     <%- include('../includes/csrf') %>
                                     <div class="col-auto">
@@ -88,4 +108,137 @@
             </div>
         <% } %>
     </div>
-</div>
+
+    <h4 class="mb-3 mt-5">Volunteer applications</h4>
+    <% if (pendingApplications.length === 0) { %>
+        <div class="alert alert-success">No pending volunteer applications.</div>
+    <% } %>
+    <% for (const app of pendingApplications) { %>
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-lg-7">
+                        <h5 class="mb-1"><%= app.applicant ? app.applicant.username : 'Unknown' %></h5>
+                        <p class="small text-muted mb-2"><%= app.applicant && app.applicant.email %> · <%= app.applicant && app.applicant.phone %></p>
+                        <p class="mb-1"><strong>Skills:</strong> <%= app.skills.join(', ') %></p>
+                        <p class="mb-1"><strong>Availability:</strong> <%= app.availability %></p>
+                        <p class="mb-1"><%= app.experience %></p>
+                        <% if (app.message) { %><p class="small text-muted mb-0"><%= app.message %></p><% } %>
+                    </div>
+                    <div class="col-lg-5">
+                        <form action="<%= formAction('/volunteer/' + app._id + '/review') %>" method="POST" class="needs-validation" novalidate>
+                            <%- include('../includes/csrf') %>
+                            <div class="mb-2">
+                                <select name="status" class="form-select form-select-sm" required>
+                                    <option value="approved">Approve as volunteer</option>
+                                    <option value="rejected">Decline</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" name="adminNote" class="form-control form-control-sm" maxlength="500" placeholder="Note to applicant (optional)">
+                            </div>
+                            <button class="btn btn-primary btn-sm w-100">Submit review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <h4 class="mb-3 mt-5">Community shelters to verify</h4>
+    <% if (pendingShelters.length === 0) { %>
+        <div class="alert alert-success">No community shelters waiting for verification.</div>
+    <% } %>
+    <% for (const s of pendingShelters) { %>
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <div class="row gy-3">
+                    <div class="col-lg-7">
+                        <h5 class="mb-1"><a href="/shelters/<%= s._id %>"><%= s.name %></a></h5>
+                        <p class="small text-muted mb-2"><%= s.address %></p>
+                        <p class="mb-1">Host: <%= s.managedBy ? s.managedBy.username : '—' %> · Capacity <%= s.totalCapacity %></p>
+                        <% if (s.amenities && s.amenities.length) { %><p class="mb-0 small">Amenities: <%= s.amenities.join(', ') %></p><% } %>
+                    </div>
+                    <div class="col-lg-5">
+                        <form action="<%= formAction('/admin/shelters/' + s._id + '/review') %>" method="POST">
+                            <%- include('../includes/csrf') %>
+                            <div class="mb-2">
+                                <select name="status" class="form-select form-select-sm" required>
+                                    <option value="approved">Approve listing</option>
+                                    <option value="rejected">Reject listing</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <input type="text" name="adminNote" class="form-control form-control-sm" maxlength="500" placeholder="Admin note (optional)">
+                            </div>
+                            <button class="btn btn-primary btn-sm w-100">Submit review</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <h4 class="mb-3 mt-5">Volunteer performance</h4>
+    <% if (volunteerPerformance.length === 0) { %>
+        <div class="alert alert-secondary">No approved volunteers yet.</div>
+    <% } else { %>
+        <div class="table-responsive card border-0 shadow-sm">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Volunteer</th>
+                        <th>Active</th>
+                        <th>Resolved</th>
+                        <th>Total</th>
+                        <th>Last update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (const v of volunteerPerformance) { %>
+                        <tr>
+                            <td><%= v.username %></td>
+                            <td><%= v.active %></td>
+                            <td><%= v.resolved %></td>
+                            <td><%= v.total %></td>
+                            <td><%= v.lastUpdate ? new Date(v.lastUpdate).toLocaleString() : '—' %></td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+
+    <h4 class="mb-3 mt-5">Issue a password</h4>
+    <p class="text-muted">For people who cannot recover with username + phone. Share the new password once in person or by a trusted channel — it is shown only on this screen.</p>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form action="<%= formAction('/admin/users/reset-password') %>" method="POST" class="row g-2 align-items-end">
+                <%- include('../includes/csrf') %>
+                <div class="col-12 col-md-6">
+                    <label class="form-label" for="resetUsername">Username</label>
+                    <input class="form-control" type="text" id="resetUsername" name="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]{3,30}" required>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <button class="btn btn-outline-primary">Generate password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
+        <h4 class="mb-0">Recent operations</h4>
+        <a href="/admin/audit">Full audit log</a>
+    </div>
+    <% if (!recentAudit || !recentAudit.length) { %>
+        <div class="alert alert-secondary">No audited actions yet.</div>
+    <% } else { %>
+        <ul class="list-group">
+            <% for (const log of recentAudit) { %>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><%= log.summary %></span>
+                    <small class="text-muted"><%= new Date(log.createdAt).toLocaleString() %></small>
+                </li>
+            <% } %>
+        </ul>
+    <% } %>

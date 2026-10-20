@@ -21,7 +21,17 @@
                     <% } else { %>
                         <span class="badge bg-danger">Status: Closed</span>
                     <% } %>
+                    <span class="badge bg-secondary text-capitalize"><%= shelter.hostType %> host</span>
+                    <% if (shelter.verificationStatus !== 'approved') { %>
+                        <span class="badge badge-<%= shelter.verificationStatus %>"><%= shelter.verificationStatus %></span>
+                    <% } %>
                 </div>
+                <% if (shelter.amenities && shelter.amenities.length) { %>
+                    <p class="small mb-2"><% for (const a of shelter.amenities) { %><span class="badge bg-light text-dark me-1"><%= a %></span><% } %></p>
+                <% } %>
+                <% if (shelter.contactPhone) { %><p class="mb-1">Contact: <%= shelter.contactPhone %></p><% } %>
+                <% if (shelter.notes) { %><p class="text-muted"><%= shelter.notes %></p><% } %>
+                <% if (shelter.managedBy) { %><p class="small text-muted">Listed by <%= shelter.managedBy.username %></p><% } %>
 
                 <div class="row text-center my-4">
                     <div class="col-6 border-end">
@@ -40,7 +50,7 @@
                 </div>
             </div>
 
-            <% if(currentUser && currentUser.role === 'admin') { %>
+            <% if(currentUser && (currentUser.role === 'admin' || (shelter.managedBy && shelter.managedBy.equals(currentUser._id)))) { %>
             <div class="card-footer bg-white border-top-0 pt-0 pb-3">
                 <a class="btn btn-sm btn-outline-info" href="/shelters/<%= shelter._id %>/edit">Edit Shelter</a>
                 <form class="d-inline" action="<%= formAction('/shelters/' + shelter._id + '?_method=DELETE') %>" method="POST">

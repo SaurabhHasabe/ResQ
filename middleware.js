@@ -22,12 +22,19 @@ const {
     shelterSchema,
     requestSchema,
     userSchema,
+    forgotSchema,
+    adminResetSchema,
     assignmentUpdateSchema,
     verifyIncidentSchema,
-    assignSchema
+    assignSchema,
+    volunteerApplySchema,
+    reviewSchema
 } = require('./schema');
 const Incident = require('./models/incident');
 const Request = require('./models/request');
+const Shelter = require('./models/shelter');
+const geo = require('./utils/geo');
+const { promoteSudoAdmin } = require('./utils/sudoAdmins');
 
 function validationMessages(error) {
     return error.details.map(el => el.message.replace(/['"]/g, '')).join('. ');
@@ -67,6 +74,55 @@ module.exports.validateRequest = makeValidator(requestSchema, '/requests/new');
 module.exports.validateAssignment = makeValidator(assignmentUpdateSchema, '/assignments');
 module.exports.validateVerify = makeValidator(verifyIncidentSchema, '/admin/dashboard');
 module.exports.validateAssign = makeValidator(assignSchema, (req) => req.get('Referrer') || req.get('Referer') || '/admin/dashboard');
+module.exports.validateVolunteerApply = makeValidator(volunteerApplySchema, '/volunteer/apply');
+module.exports.validateForgot = makeValidator(forgotSchema, '/forgot');
+module.exports.validateAdminReset = makeValidator(adminResetSchema, '/admin/dashboard');
+module.exports.validateReview = makeValidator(reviewSchema, (req) => req.get('Referrer') || req.get('Referer') || '/admin/dashboard');
+
+module.exports.promoteSudoAdmin = catchAsync(async (req, res, next) => {
+    if (req.user) {
+        await promoteSudoAdmin(req.user);
+    }
+    next();
+});
+
+module.exports.canReviewIncident = catchAsync(async (req, res, next) => {
+    const incident = req.incident || await Incident.findById(req.params.id);
+    if (!incident) {
+        req.flash('error', 'Cannot find that incident!');
+        return res.redirect('/incidents');
+    }
+    if (incident.status !== 'pending') {
+        req.flash('error', 'This incident has already been reviewed.');
+        return res.redirect(`/incidents/${incident._id}`);
+    }
+    const allowed = await geo.isNearestReviewer(req.user, incident.location);
+    if (!allowed) {
+        req.flash('error', 'Only the nearest volunteers on the ground can accept or reject this report.');
+        return res.redirect(req.user.role === 'volunteer' ? '/assignments' : '/admin/dashboard');
+    }
+    req.incident = incident;
+    next();
+});
+
+module.exports.canClaimRequest = catchAsync(async (req, res, next) => {
+    const request = await Request.findById(req.params.id);
+    if (!request) {
+        req.flash('error', 'Cannot find that request!');
+        return res.redirect('/requests');
+    }
+    if (request.status !== 'open') {
+        req.flash('error', 'This aid request is no longer open.');
+        return res.redirect(`/requests/${request._id}`);
+    }
+    const allowed = await geo.isNearestReviewer(req.user, request.location);
+    if (!allowed) {
+        req.flash('error', 'Only the nearest volunteers can accept this aid request.');
+        return res.redirect('/assignments');
+    }
+    req.aidRequest = request;
+    next();
+});
 
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -96,9 +152,32 @@ module.exports.isVolunteer = (req, res, next) => {
     if (req.user && (req.user.role === 'volunteer' || req.user.role === 'admin')) {
         return next();
     }
-    req.flash('error', 'You do not have permission to do that.');
-    return res.redirect('/');
+    req.flash('error', 'Only approved volunteers can access assignments. Apply from your profile.');
+    return res.redirect('/profile');
 };
+
+module.exports.isCitizen = (req, res, next) => {
+    if (req.user && req.user.role === 'citizen') {
+        return next();
+    }
+    req.flash('error', 'This action is for citizens.');
+    return res.redirect('/profile');
+};
+
+module.exports.isShelterManager = catchAsync(async (req, res, next) => {
+    const shelter = await Shelter.findById(req.params.id);
+    if (!shelter) {
+        req.flash('error', 'Cannot find that shelter!');
+        return res.redirect('/shelters');
+    }
+    const isOwner = shelter.managedBy && shelter.managedBy.equals(req.user._id);
+    if (req.user.role === 'admin' || isOwner) {
+        req.shelter = shelter;
+        return next();
+    }
+    req.flash('error', 'You can only manage a shelter you listed.');
+    return res.redirect(`/shelters/${req.params.id}`);
+});
 
 module.exports.isIncidentAuthor = catchAsync(async (req, res, next) => {
     const { id } = req.params;

@@ -51,6 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function preventIOSZoom() {
     let lastTouchEnd = 0;
     document.addEventListener('touchend', function(event) {
+        if (event.target.closest && event.target.closest('#map, .mapboxgl-map, .mapboxgl-canvas')) {
+            lastTouchEnd = Date.now();
+            return;
+        }
         const now = Date.now();
         if (now - lastTouchEnd <= 300) {
             event.preventDefault();

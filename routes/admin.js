@@ -1,52 +1,38 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
-const { isLoggedIn, isAdmin, isValidObjectId, validateVerify, validateAssign } = require('../middleware');
+const { isLoggedIn, isAdmin, isValidObjectId, validateVerify, validateAssign, validateReview, validateAdminReset } = require('../middleware');
+const users = require('../controllers/users');
 const Incident = require('../models/incident');
 const Shelter = require('../models/shelter');
 const Request = require('../models/request');
 const Assignment = require('../models/assignment');
 const User = require('../models/user');
-
-function calculateScore(incident, allPendingIncidents) {
-    let score = 0;
-    const categoryWeights = {
-        'building collapse': 50,
-        'fire': 40,
-        'earthquake': 30,
-        'flood': 20,
-        'other': 10
-    };
-    score += (categoryWeights[incident.category] || 10);
-
-    const severityWeights = { high: 30, medium: 15, low: 5 };
-    score += (severityWeights[incident.selfReportedSeverity] || 5);
-
-    let nearbyCount = 0;
-    for (const other of allPendingIncidents) {
-        if (other._id.toString() === incident._id.toString()) continue;
-        const [lon1, lat1] = incident.location.coordinates;
-        const [lon2, lat2] = other.location.coordinates;
-        const dist = Math.sqrt(Math.pow(lon2 - lon1, 2) + Math.pow(lat2 - lat1, 2));
-        if (dist < 0.02) nearbyCount++;
-    }
-    score += (nearbyCount * 5);
-    return Math.min(1000, score);
-}
+const VolunteerApplication = require('../models/volunteerApplication');
+const shelterCtrl = require('../controllers/shelters');
+const incidentsCtrl = require('../controllers/incidents');
+const { calculateScore } = require('../utils/priority');
+const geo = require('../utils/geo');
+const { canReviewIncident } = require('../middleware');
+const { notifyUser } = require('../utils/notify');
+const { audit } = require('../utils/audit');
+const AuditLog = require('../models/auditLog');
+const ops = require('../controllers/ops');
 
 router.get('/dashboard', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
     const pendingIncidentsDocs = await Incident.find({ status: 'pending' });
     const pendingIncidents = pendingIncidentsDocs.map(doc => doc.toObject());
 
-    pendingIncidents.forEach(inc => {
+    for (const inc of pendingIncidents) {
         inc.suggestedScore = calculateScore(inc, pendingIncidents);
-    });
+        inc.nearestReviewers = await geo.nearestVolunteers(inc.location);
+    }
     pendingIncidents.sort((a, b) => b.suggestedScore - a.suggestedScore);
 
     const verifiedIncidents = await Incident.countDocuments({ status: 'verified' });
     const openRequests = await Request.countDocuments({ status: 'open' });
 
-    const shelters = await Shelter.find({});
+    const shelters = await Shelter.find({ verificationStatus: 'approved' });
     let totalCapacity = 0;
     let totalOccupancy = 0;
     shelters.forEach(s => {
@@ -55,7 +41,32 @@ router.get('/dashboard', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
     });
 
     const unassignedTasks = openRequests + pendingIncidentsDocs.length;
-    const volunteers = await User.find({ role: 'volunteer' }).select('username');
+    const volunteers = await User.find({ role: 'volunteer' }).select('username volunteerStatus');
+    const pendingApplications = await VolunteerApplication.find({ status: 'pending' })
+        .populate('applicant', 'username email phone')
+        .sort({ createdAt: 1 });
+    const pendingShelters = await Shelter.find({ verificationStatus: 'pending' })
+        .populate('managedBy', 'username phone')
+        .sort({ createdAt: 1 });
+
+    const volunteerIds = volunteers.map(v => v._id);
+    const volunteerAssignments = await Assignment.find({ volunteer: { $in: volunteerIds } });
+    const volunteerPerformance = volunteers.map(v => {
+        const mine = volunteerAssignments.filter(a => a.volunteer.equals(v._id));
+        return {
+            _id: v._id,
+            username: v.username,
+            total: mine.length,
+            resolved: mine.filter(a => a.status === 'resolved').length,
+            active: mine.filter(a => a.status !== 'resolved').length,
+            lastUpdate: mine.reduce((latest, a) => {
+                const t = a.updatedAt || a.createdAt;
+                return !latest || t > latest ? t : latest;
+            }, null)
+        };
+    }).sort((a, b) => b.resolved - a.resolved || b.active - a.active);
+
+    const recentAudit = await AuditLog.find({}).populate('actor', 'username').sort({ createdAt: -1 }).limit(12);
 
     res.render('dashboard/admin', {
         pendingIncidents,
@@ -64,32 +75,36 @@ router.get('/dashboard', isLoggedIn, isAdmin, catchAsync(async (req, res) => {
         totalCapacity,
         totalOccupancy,
         unassignedTasks,
-        volunteers
+        volunteers,
+        pendingApplications,
+        pendingShelters,
+        volunteerPerformance,
+        recentAudit
     });
 }));
 
-router.post('/incidents/:id/verify', isLoggedIn, isAdmin, isValidObjectId, validateVerify, catchAsync(async (req, res) => {
-    const { status, verifiedSeverity, priorityScore } = req.body;
-    const incident = await Incident.findById(req.params.id);
-    if (!incident) {
-        req.flash('error', 'Incident not found');
-        return res.redirect('/admin/dashboard');
-    }
-    if (incident.status !== 'pending') {
-        req.flash('error', 'This incident has already been reviewed.');
-        return res.redirect('/admin/dashboard');
-    }
-    incident.status = status;
-    if (status === 'verified') {
-        incident.verifiedSeverity = verifiedSeverity;
-        incident.priorityScore = priorityScore === '' || priorityScore == null ? null : Number(priorityScore);
-        incident.verifiedBy = req.user._id;
-        incident.verifiedAt = new Date();
-    }
-    await incident.save();
-    req.flash('success', `Incident marked as ${status}`);
-    res.redirect('/admin/dashboard');
-}));
+router.get('/audit', isLoggedIn, isAdmin, catchAsync(ops.audit));
+
+router.post('/users/reset-password', isLoggedIn, isAdmin, validateAdminReset, catchAsync(users.adminIssuePassword));
+
+router.post(
+    '/shelters/:id/review',
+    isLoggedIn,
+    isAdmin,
+    isValidObjectId,
+    validateReview,
+    catchAsync(shelterCtrl.review)
+);
+
+router.post(
+    '/incidents/:id/verify',
+    isLoggedIn,
+    isAdmin,
+    isValidObjectId,
+    canReviewIncident,
+    validateVerify,
+    catchAsync(incidentsCtrl.review)
+);
 
 router.post('/assign', isLoggedIn, isAdmin, validateAssign, catchAsync(async (req, res) => {
     const { volunteerId, targetType, targetId } = req.body;
@@ -131,6 +146,20 @@ router.post('/assign', isLoggedIn, isAdmin, validateAssign, catchAsync(async (re
         target.status = 'assigned';
         await target.save();
     }
+
+    await notifyUser(volunteer, {
+        title: 'New field assignment',
+        body: `You were assigned a ${targetType}. Open Assignments to update status.`,
+        href: '/assignments',
+        kind: 'assignment'
+    });
+    await audit({
+        actor: req.user._id,
+        action: 'assignment.created',
+        targetType,
+        targetId: target._id,
+        summary: `${req.user.username} assigned ${volunteer.username} to a ${targetType}`
+    });
 
     req.flash('success', 'Successfully assigned task to volunteer');
     res.redirect(referer);

@@ -27,10 +27,44 @@ const ShelterSchema = new Schema({
         enum: ['open', 'full', 'closed'],
         default: 'open'
     },
+    verificationStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'approved'
+    },
+    hostType: {
+        type: String,
+        enum: ['official', 'community'],
+        default: 'official'
+    },
+    amenities: {
+        type: [{
+            type: String,
+            enum: ['water', 'food', 'medical', 'power', 'blankets', 'washroom']
+        }],
+        default: []
+    },
+    contactPhone: {
+        type: String,
+        default: '',
+        maxlength: 13
+    },
+    notes: {
+        type: String,
+        default: '',
+        maxlength: 1000,
+        trim: true
+    },
     managedBy: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    reviewedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    reviewedAt: { type: Date, default: null }
 }, { timestamps: true });
 
 ShelterSchema.index({ location: '2dsphere' });

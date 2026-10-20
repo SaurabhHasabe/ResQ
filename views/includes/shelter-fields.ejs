@@ -1,0 +1,55 @@
+<% const selectedAmenities = (typeof shelter !== 'undefined' && shelter.amenities) ? shelter.amenities : []; %>
+<div class="mb-3">
+    <label class="form-label" for="name">Place name</label>
+    <input class="form-control" type="text" id="name" name="shelter[name]" minlength="2" maxlength="120"
+        value="<%= typeof shelter !== 'undefined' ? shelter.name : '' %>" required
+        placeholder="e.g. Sharma residence, 2nd floor">
+</div>
+
+<div class="row mb-3 gy-3">
+    <div class="col-md-4">
+        <label class="form-label" for="totalCapacity">People you can host</label>
+        <input class="form-control" type="number" id="totalCapacity" name="shelter[totalCapacity]" min="1" max="100000" step="1"
+            value="<%= typeof shelter !== 'undefined' ? shelter.totalCapacity : '' %>" required>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="currentOccupancy">Currently hosting</label>
+        <input class="form-control" type="number" id="currentOccupancy" name="shelter[currentOccupancy]" min="0" max="100000" step="1"
+            value="<%= typeof shelter !== 'undefined' ? shelter.currentOccupancy : 0 %>" required>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="status">Availability</label>
+        <select class="form-select" id="status" name="shelter[status]" required>
+            <option value="open" <%= typeof shelter === 'undefined' || shelter.status === 'open' ? 'selected' : '' %>>Open</option>
+            <option value="full" <%= typeof shelter !== 'undefined' && shelter.status === 'full' ? 'selected' : '' %>>Full</option>
+            <option value="closed" <%= typeof shelter !== 'undefined' && shelter.status === 'closed' ? 'selected' : '' %>>Closed</option>
+        </select>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="contactPhone">Contact phone</label>
+    <input class="form-control" type="tel" id="contactPhone" name="shelter[contactPhone]" inputmode="numeric" maxlength="13"
+        pattern="^(\+91)?[6-9][0-9]{9}$"
+        value="<%= typeof shelter !== 'undefined' ? (shelter.contactPhone || '') : (currentUser.phone || '') %>"
+        placeholder="10-digit Indian mobile">
+</div>
+
+<div class="mb-3">
+    <span class="form-label d-block">What you can provide</span>
+    <div class="amenity-grid">
+        <% const amenityOptions = ['water', 'food', 'medical', 'power', 'blankets', 'washroom']; %>
+        <% for (const amenity of amenityOptions) { %>
+            <label class="amenity-chip">
+                <input type="checkbox" name="shelter[amenities]" value="<%= amenity %>" <%= selectedAmenities.includes(amenity) ? 'checked' : '' %>>
+                <span><%= amenity %></span>
+            </label>
+        <% } %>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label class="form-label" for="notes">Notes for people seeking shelter</label>
+    <textarea class="form-control" id="notes" name="shelter[notes]" maxlength="1000" rows="3"
+        placeholder="Access details, pets, stairs, women-only rooms…"><%= typeof shelter !== 'undefined' ? shelter.notes : '' %></textarea>
+</div>
