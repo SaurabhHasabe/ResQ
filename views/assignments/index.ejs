@@ -70,7 +70,14 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><%= a.targetType.toUpperCase() %>: <%= a.targetId ? (a.targetId.title || a.targetId.type) : 'Deleted target' %></h5>
-                        <p class="card-text mb-1"><strong>Status:</strong> <%= a.status %></p>
+                        <p class="card-text mb-1">
+                            <strong>Status:</strong>
+                            <% if (a.status === 'resolved') { %>
+                                <span class="badge bg-success">resolved</span>
+                            <% } else { %>
+                                <%= a.status %>
+                            <% } %>
+                        </p>
                         <p class="card-text mb-2"><small class="text-muted">Assigned on: <%= new Date(a.createdAt).toLocaleDateString() %></small></p>
                         
                         <% if(a.targetId && a.targetType === 'incident') { %>
@@ -79,6 +86,14 @@
                             <a href="/requests/<%= a.targetId._id %>" class="btn btn-sm btn-outline-primary mb-3">View Target Request</a>
                         <% } %>
 
+                        <% if (a.status === 'resolved') { %>
+                            <% if (a.fieldNotes) { %>
+                                <p class="small mb-0"><strong>Field notes</strong></p>
+                                <p class="small text-muted mb-0"><%= a.fieldNotes %></p>
+                            <% } else { %>
+                                <p class="small text-muted mb-0">This task is closed. No further updates.</p>
+                            <% } %>
+                        <% } else { %>
                         <form action="<%= formAction('/assignments/' + a._id) %>" method="POST">
                             <%- include('../includes/csrf') %>
                             <input type="hidden" name="_method" value="PUT">
@@ -95,6 +110,7 @@
                             </div>
                             <button class="btn btn-sm btn-primary w-100">Update Assignment</button>
                         </form>
+                        <% } %>
                     </div>
                 </div>
             </div>

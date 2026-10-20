@@ -14,7 +14,7 @@ async function populateTargets(assignments) {
 
 module.exports.index = async (req, res) => {
     const filter = req.user.role === 'admin' ? {} : { volunteer: req.user._id };
-    const assignments = await Assignment.find(filter).populate('volunteer');
+    const assignments = await Assignment.find(filter).populate('volunteer').sort({ updatedAt: -1 });
     await populateTargets(assignments);
 
     let nearbyIncidents = [];
@@ -60,6 +60,11 @@ module.exports.updateStatus = async (req, res) => {
 
     if (req.user.role !== 'admin' && !sameUser(assignment.volunteer, req.user._id)) {
         req.flash('error', 'Not permitted.');
+        return res.redirect('/assignments');
+    }
+
+    if (assignment.status === 'resolved') {
+        req.flash('error', 'This assignment is already resolved and cannot be updated.');
         return res.redirect('/assignments');
     }
 
