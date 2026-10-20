@@ -1,5 +1,5 @@
 <% layout('layouts/boilerplate') %>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="alerts-head">
     <div>
         <p class="eyebrow mb-1">Operations</p>
         <h1 class="mb-0">Alerts</h1>
@@ -15,14 +15,14 @@
 <% if (!notes.length) { %>
     <div class="empty-state"><p>No alerts yet. Nearby incident and aid alerts appear here.</p></div>
 <% } else { %>
-    <div class="list-group">
+    <div class="list-group alert-feed">
         <% for (const n of notes) { %>
-            <a href="<%= n.href %>" class="list-group-item list-group-item-action <%= n.readAt ? '' : 'list-group-item-warning' %>">
-                <div class="d-flex justify-content-between">
-                    <strong><%= n.title %></strong>
-                    <small class="text-muted"><%= new Date(n.createdAt).toLocaleString() %></small>
+            <a href="<%= n.href %>" class="list-group-item list-group-item-action alert-item <%= n.readAt ? '' : 'list-group-item-warning' %>">
+                <div class="alert-item-top">
+                    <strong class="alert-item-title"><%= n.title %></strong>
+                    <time class="alert-item-time text-muted" datetime="<%= new Date(n.createdAt).toISOString() %>"><%= new Date(n.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) %></time>
                 </div>
-                <div class="small"><%= n.body %></div>
+                <p class="alert-item-body small mb-0"><%= n.body %></p>
             </a>
         <% } %>
     </div>

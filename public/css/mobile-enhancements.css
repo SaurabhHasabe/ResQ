@@ -142,8 +142,6 @@
     .list-group-item {
         padding: 1rem;
         min-height: 56px;
-        display: flex;
-        align-items: center;
     }
 
     .list-group-item:active {

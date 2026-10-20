@@ -59,51 +59,50 @@
         <div class="alert alert-success">No pending incidents to verify!</div>
     <% } %>
     
-    <div class="row">
+    <div class="queue-list">
         <% for(let inc of pendingIncidents) { %>
-            <div class="col-12 mb-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 col-md-6 border-end">
-                                <h5><a href="/incidents/<%= inc._id %>"><%= inc.title %></a></h5>
-                                <p class="mb-1 text-muted small"><%= inc.address %></p>
-                                <span class="badge bg-secondary"><%= inc.category %></span>
-                                <span class="badge badge-severity-<%= inc.selfReportedSeverity %>">Self-Reported: <%= inc.selfReportedSeverity %></span>
-                                <p class="mt-2"><small><strong>Suggested Priority Score:</strong> <%= inc.suggestedScore %></small></p>
-                                <% if (inc.nearestReviewers && inc.nearestReviewers.length) { %>
-                                    <p class="mb-0 small text-muted">Nearest volunteers: <%= inc.nearestReviewers.map(v => v.username).join(', ') %></p>
-                                <% } else { %>
-                                    <p class="mb-0 small text-muted">No volunteer has shared a location near this report yet.</p>
-                                <% } %>
-                            </div>
-                            <div class="col-12 col-md-6 d-flex align-items-center">
-                                <form action="<%= formAction('/admin/incidents/' + inc._id + '/verify') %>" method="POST" class="w-100 row gy-2 gx-2 align-items-center">
-                                    <%- include('../includes/csrf') %>
-                                    <div class="col-auto">
-                                        <select name="status" class="form-select form-select-sm" required>
-                                            <option value="verified">Verify</option>
-                                            <option value="rejected">Reject</option>
-                                            <option value="duplicate">Mark Duplicate</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-auto">
-                                        <select name="verifiedSeverity" class="form-select form-select-sm">
-                                            <option value="high" <%= inc.selfReportedSeverity==='high'?'selected':'' %>>High</option>
-                                            <option value="medium" <%= inc.selfReportedSeverity==='medium'?'selected':'' %>>Medium</option>
-                                            <option value="low" <%= inc.selfReportedSeverity==='low'?'selected':'' %>>Low</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-auto">
-                                        <input type="number" name="priorityScore" class="form-control form-control-sm" placeholder="Score override" min="0" max="1000" value="<%= inc.suggestedScore %>" style="width: 100px;">
-                                    </div>
-                                    <div class="col-auto">
-                                        <button class="btn btn-primary btn-sm">Submit</button>
-                                    </div>
-                                </form>
-                            </div>
+            <div class="card queue-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="queue-card-copy">
+                        <h5 class="queue-card-title"><a href="/incidents/<%= inc._id %>"><%= inc.title %></a></h5>
+                        <p class="mb-2 text-muted small"><%= inc.address %></p>
+                        <div class="queue-card-badges">
+                            <span class="badge bg-secondary"><%= inc.category %></span>
+                            <span class="badge badge-severity-<%= inc.selfReportedSeverity %>">Self-Reported: <%= inc.selfReportedSeverity %></span>
                         </div>
+                        <p class="mt-2 mb-1 small"><strong>Suggested Priority Score:</strong> <%= inc.suggestedScore %></p>
+                        <% if (inc.nearestReviewers && inc.nearestReviewers.length) { %>
+                            <p class="mb-0 small text-muted">Nearest volunteers: <%= inc.nearestReviewers.map(v => v.username).join(', ') %></p>
+                        <% } else { %>
+                            <p class="mb-0 small text-muted">No volunteer has shared a location near this report yet.</p>
+                        <% } %>
                     </div>
+                    <form action="<%= formAction('/admin/incidents/' + inc._id + '/verify') %>" method="POST" class="queue-form">
+                        <%- include('../includes/csrf') %>
+                        <label>
+                            Decision
+                            <select name="status" class="form-select" required>
+                                <option value="verified">Verify</option>
+                                <option value="rejected">Reject</option>
+                                <option value="duplicate">Mark Duplicate</option>
+                            </select>
+                        </label>
+                        <label>
+                            Severity
+                            <select name="verifiedSeverity" class="form-select">
+                                <option value="high" <%= inc.selfReportedSeverity==='high'?'selected':'' %>>High</option>
+                                <option value="medium" <%= inc.selfReportedSeverity==='medium'?'selected':'' %>>Medium</option>
+                                <option value="low" <%= inc.selfReportedSeverity==='low'?'selected':'' %>>Low</option>
+                            </select>
+                        </label>
+                        <label>
+                            Score
+                            <input type="number" name="priorityScore" class="form-control" placeholder="Score" min="0" max="1000" value="<%= inc.suggestedScore %>">
+                        </label>
+                        <div class="queue-form-actions">
+                            <button class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         <% } %>
@@ -233,11 +232,13 @@
     <% if (!recentAudit || !recentAudit.length) { %>
         <div class="alert alert-secondary">No audited actions yet.</div>
     <% } else { %>
-        <ul class="list-group">
+        <ul class="list-group alert-feed">
             <% for (const log of recentAudit) { %>
-                <li class="list-group-item d-flex justify-content-between">
-                    <span><%= log.summary %></span>
-                    <small class="text-muted"><%= new Date(log.createdAt).toLocaleString() %></small>
+                <li class="list-group-item alert-item">
+                    <div class="alert-item-top">
+                        <span class="alert-item-title"><%= log.summary %></span>
+                        <small class="alert-item-time text-muted"><%= new Date(log.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) %></small>
+                    </div>
                 </li>
             <% } %>
         </ul>

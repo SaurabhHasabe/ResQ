@@ -449,6 +449,101 @@ textarea::placeholder {
     box-shadow: inset 3px 0 0 var(--accent);
 }
 
+.queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.queue-card .card-body {
+    display: grid;
+    gap: 1rem;
+}
+
+.queue-card-title {
+    font-size: 1.05rem;
+    line-height: 1.35;
+    margin-bottom: 0.4rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.queue-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.queue-form {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.queue-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.queue-form .form-select,
+.queue-form .form-control,
+.queue-form .btn {
+    width: 100%;
+}
+
+.queue-form-actions .btn {
+    min-height: 44px;
+}
+
+.alerts-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.alert-item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+}
+
+.alert-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert-item-title {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+.alert-item-time {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 0.78rem;
+}
+
+.alert-item-body {
+    color: var(--ink-soft);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .table-hover > tbody > tr:hover > * {
     --bs-table-bg-state: var(--accent-soft);
     color: var(--ink);
@@ -646,6 +741,41 @@ img, svg, video {
     .form-select,
     .btn {
         max-width: 100%;
+    }
+
+    .queue-card .card-body {
+        padding: 1rem;
+    }
+
+    .queue-form-actions .btn {
+        width: 100%;
+    }
+
+    .alert-item-top {
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .alert-item-time {
+        white-space: normal;
+    }
+}
+
+@media (min-width: 768px) {
+    .queue-form {
+        grid-template-columns: 1fr 1fr;
+        align-items: end;
+    }
+
+    .queue-form-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (min-width: 992px) {
+    .queue-card .card-body {
+        grid-template-columns: 1.15fr 0.95fr;
+        align-items: start;
     }
 }
 
