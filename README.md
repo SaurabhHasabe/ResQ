@@ -2,7 +2,7 @@
 
 ResQ is a public disaster-operations app for India: report incidents, find shelters, request aid, and dispatch nearby volunteers. It runs as a single Express site with a live map, in-app alerts, and three roles.
 
- [**Live:**](https://resq-s0af.onrender.com/)
+ [**Live**](https://resq-s0af.onrender.com/)
 
 Production deploy steps live in [DEPLOYMENT.md](DEPLOYMENT.md).
 
